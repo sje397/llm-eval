@@ -1,0 +1,15 @@
+# data — never commit
+index/
+parsed/
+dumps/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# python
+__pycache__/
+*.pyc
+.venv/
+
+# logs
+*.log
