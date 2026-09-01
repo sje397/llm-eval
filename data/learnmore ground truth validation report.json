@@ -1,0 +1,96 @@
+{
+  "generated_at": "2026-08-26T09:21:34.461624+00:00",
+  "total_scenarios_expected": 7,
+  "total_ground_truth_files_found": 6,
+  "scenarios_passing": 1,
+  "scenarios_failing": 5,
+  "missing_ground_truth_files": [
+    "CN-06"
+  ],
+  "unexpected_ground_truth_files": [],
+  "scenarios": [
+    {
+      "scenario_id": "CN-01",
+      "status": "FAIL",
+      "defects": [
+        {
+          "type": "missing_source",
+          "language": "en",
+          "fact_id": "F1",
+          "detail": "Fact has no source reference."
+        }
+      ]
+    },
+    {
+      "scenario_id": "CN-02",
+      "status": "FAIL",
+      "defects": [
+        {
+          "type": "duplicate_fact",
+          "language": "en",
+          "fact_id": "F99",
+          "detail": "Duplicate of fact 'F1' (same normalized text)."
+        },
+        {
+          "type": "dropped_across_languages",
+          "fact_id": "F99",
+          "detail": "Fact 'F99' is present in EN but missing in ZH."
+        }
+      ]
+    },
+    {
+      "scenario_id": "CN-03",
+      "status": "FAIL",
+      "defects": [
+        {
+          "type": "dropped_across_languages",
+          "fact_id": "F3",
+          "detail": "Fact 'F3' is present in EN but missing in ZH."
+        }
+      ]
+    },
+    {
+      "scenario_id": "CN-04",
+      "status": "FAIL",
+      "defects": [
+        {
+          "type": "empty_fact_text",
+          "language": "zh",
+          "fact_id": "F1",
+          "detail": "Fact text is empty or missing."
+        }
+      ]
+    },
+    {
+      "scenario_id": "CN-05",
+      "status": "FAIL",
+      "defects": [
+        {
+          "type": "missing_language",
+          "language": "zh",
+          "detail": "No 'zh' fact list found for this scenario."
+        },
+        {
+          "type": "dropped_across_languages",
+          "fact_id": "F1",
+          "detail": "Fact 'F1' is present in EN but missing in ZH."
+        },
+        {
+          "type": "dropped_across_languages",
+          "fact_id": "F2",
+          "detail": "Fact 'F2' is present in EN but missing in ZH."
+        },
+        {
+          "type": "dropped_across_languages",
+          "fact_id": "F3",
+          "detail": "Fact 'F3' is present in EN but missing in ZH."
+        }
+      ]
+    },
+    {
+      "scenario_id": "CN-07",
+      "status": "PASS",
+      "defects": []
+    }
+  ]
+}
