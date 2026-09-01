@@ -91,6 +91,27 @@ converted Simplified→Traditional at the boundary.
 
 Logs: `/tmp/wikipedia-service.{log,err}`, `/tmp/wikipedia-tunnel.{log,err}`
 
+## Deploying a fix
+
+To push a `service.py` change to the live service, run [`deploy.sh`](deploy.sh)
+**on Mímir**. It backs up the live file (`service.py.bak-<timestamp>`), copies
+this repo's `service.py` over it, verifies the copy matches, restarts the
+daemon, and smoke-tests `/health` + the `Great Leap Forward` probes.
+
+```bash
+./deploy.sh                 # deploy + restart + smoke-test
+./deploy.sh --dry-run       # show what would happen, change nothing
+./deploy.sh --skip-smoke    # deploy + restart, skip post-check
+```
+
+Restart mechanism: `com.lex.wikipedia-service` is a **system LaunchDaemon**
+(`KeepAlive=true`), so `deploy.sh` uses
+`launchctl kickstart -k system/com.lex.wikipedia-service` with privilege, and
+falls back to terminating the supervised processes (KeepAlive respawns them
+with the new file) when run as the non-root `sje` user. The live file is the
+only thing to touch — `indexer.py`/`parser.py` changes require a re-index via
+`run-pipeline.sh`, not a service restart.
+
 ## API
 
 ```
