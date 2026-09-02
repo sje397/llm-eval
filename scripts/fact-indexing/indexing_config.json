@@ -1,0 +1,14 @@
+{
+  "mimir": {
+    "host": "localhost",
+    "port": 21500,
+    "timeout": 10
+  },
+  "onix": {
+    "host": "localhost",
+    "port": 21434,
+    "api_key": "llm-api-key",
+    "max_tokens": 16384,
+    "timeout": 600
+  }
+}

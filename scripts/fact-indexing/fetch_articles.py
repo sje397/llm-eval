@@ -1,15 +1,4 @@
 #!/usr/bin/env python3
-"""
-Fetch and extract Wikipedia articles from Mímir based on semantic search.
-
-Workflow:
-  1. Search for articles matching the query
-  2. Filter to top N results (ordered by relevance)
-  3. Extract full text for each article
-  4. Return JSON list ordered by relevance
-
-See: docs/wikipedia-semantic-search.md for Mímir API details.
-"""
 
 import requests
 import json
@@ -21,14 +10,16 @@ from typing import Optional, List, Dict, Any
 # Load configuration
 CONFIG_FILE = Path(__file__).parent / "indexing_config.json"
 DEFAULT_CONFIG = {
-    "host": "localhost",
-    "port": 21500,
-    "timeout": {"search": 5, "extract": 8}
+    "mimr": {
+        "host": "localhost",
+        "port": 21500,
+        "timeout": 8
+    }
 }
 
 
+
 def load_config() -> Dict[str, Any]:
-    """Load configuration from indexing_config.json."""
     config = DEFAULT_CONFIG.copy()
     if CONFIG_FILE.exists():
         try:
@@ -39,44 +30,12 @@ def load_config() -> Dict[str, Any]:
     return config
 
 
+
 def fetch_articles(
     query: str,
     count: int = 3,
     lang: str = "en"
 ) -> List[Dict[str, Any]]:
-    """
-    Fetch and extract Wikipedia articles from Mímir.
-
-    Workflow:
-      1. Search Mímir for articles matching the query
-      2. Filter to top `count` results by relevance (score ascending)
-      3. Extract full text for each article
-      4. Return as JSON list ordered by relevance
-
-    Args:
-        query: Search query string (1-500 chars)
-        count: Number of top articles to return (default: 3)
-        lang: Language code - "en" (English) or "zh" (Chinese) (default: "en")
-
-    Returns:
-        List of articles ordered by relevance:
-        [
-            {
-                "title": "...",
-                "score": 0.3586,
-                "intro": "...",
-                "extract": "... (full article text) ...",
-                "paragraphs": ["paragraph 1", "paragraph 2", ...],
-                "wikipedia_url": "https://en.wikipedia.org/wiki/...",
-                "lang": "en"
-            },
-            ...
-        ]
-
-    Raises:
-        ValueError: If query is empty, count is invalid, or lang is not "en" or "zh"
-        requests.RequestException: If Mímir service is unavailable
-    """
 
     # Validate inputs
     if not query or len(query) == 0:
@@ -87,12 +46,10 @@ def fetch_articles(
         raise ValueError(f"lang must be 'en' or 'zh', got '{lang}'")
 
     config = load_config()
-    mimir_url = f"http://{config['host']}:{config['port']}"
-    search_timeout = config["timeout"]["search"]
-    extract_timeout = config["timeout"]["extract"]
+    mimir_url = f"http://{config['mimir']['host']}:{config['mimir']['port']}"
+    timeout = config["mimir"]["timeout"]
 
     # Step 1: Search
-    print(f"[1/2] Searching for '{query}' ({lang})...", file=sys.stderr)
     try:
         search_response = requests.post(
             f"{mimir_url}/search",
@@ -103,7 +60,7 @@ def fetch_articles(
                 "top_k": count,
                 "constrain": []
             },
-            timeout=search_timeout
+            timeout=timeout
         )
         search_response.raise_for_status()
         search_data = search_response.json()
@@ -112,13 +69,9 @@ def fetch_articles(
 
     results = search_data.get("results", [])
     if not results:
-        print(f"[1/2] No results found for query: {query}", file=sys.stderr)
         return []
 
-    print(f"[1/2] Found {len(results)} articles (top {count})", file=sys.stderr)
-
     # Step 2: Extract full text for each article
-    print(f"[2/2] Extracting full text for {len(results)} articles...", file=sys.stderr)
     titles = [r["title"] for r in results]
 
     try:
@@ -129,7 +82,7 @@ def fetch_articles(
                 "lang": lang,
                 "max_chars": 12000
             },
-            timeout=extract_timeout
+            timeout=timeout
         )
         extract_response.raise_for_status()
         extract_data = extract_response.json()
@@ -161,7 +114,6 @@ def fetch_articles(
             "lang": lang
         })
 
-    print(f"[2/2] Done. {len(collated)} articles extracted.", file=sys.stderr)
     return collated
 
 
@@ -207,6 +159,7 @@ Examples:
     except requests.RequestException as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
+
 
 
 if __name__ == "__main__":
