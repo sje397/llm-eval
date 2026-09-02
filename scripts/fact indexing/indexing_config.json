@@ -1,8 +1,0 @@
-{
-  "host": "localhost",
-  "port": 21500,
-  "timeout": {
-    "search": 5,
-    "extract": 8
-  }
-}
