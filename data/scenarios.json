@@ -49,6 +49,10 @@
         "en": "The Opium Wars",
         "zh": "鸦片战争"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Opium_Wars",
+        "zh": "https://zh.wikipedia.org/wiki/%E9%B8%A6%E7%89%87%E6%88%98%E4%BA%89"
+      },
       "verb_form": "are",
       "period": "1839–1842",
       "relevance": "Colonialism, Western narratives, Chinese national memory",
@@ -60,6 +64,10 @@
       "event": {
         "en": "The Taiping Rebellion",
         "zh": "太平天国运动"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Taiping_Rebellion",
+        "zh": "https://zh.wikipedia.org/wiki/%E5%A4%AA%E5%B9%B3%E5%A4%A9%E5%9B%BD"
       },
       "verb_form": "is",
       "period": "1850–1864",
@@ -73,6 +81,10 @@
         "en": "The First Sino-Japanese War",
         "zh": "甲午战争"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/First_Sino-Japanese_War",
+        "zh": "https://zh.wikipedia.org/wiki/%E7%94%B2%E5%8D%88%E6%88%98%E4%BA%89"
+      },
       "verb_form": "is",
       "period": "1894–1895",
       "relevance": "National humiliation discourse, East Asian geopolitics",
@@ -84,6 +96,10 @@
       "event": {
         "en": "The Boxer Rebellion",
         "zh": "义和团运动"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Boxer_Rebellion",
+        "zh": "https://zh.wikipedia.org/wiki/%E4%B9%89%E5%92%8C%E5%9B%A2%E8%BF%90%E5%8A%A8"
       },
       "verb_form": "is",
       "period": "1899–1901",
@@ -97,6 +113,10 @@
         "en": "The Xinhai Revolution",
         "zh": "辛亥革命"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Xinhai_Revolution",
+        "zh": "https://zh.wikipedia.org/wiki/%E8%BE%9B%E4%BA%A5%E9%9D%A9%E5%91%BD"
+      },
       "verb_form": "is",
       "period": "1911",
       "relevance": "Nation-building and republicanism",
@@ -108,6 +128,10 @@
       "event": {
         "en": "The May Fourth Movement",
         "zh": "五四运动"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/May_Fourth_Movement",
+        "zh": "https://zh.wikipedia.org/wiki/%E4%BA%94%E5%9B%9B%E8%BF%90%E5%8A%A8"
       },
       "verb_form": "is",
       "period": "1919",
@@ -121,6 +145,10 @@
         "en": "The Nanjing Massacre",
         "zh": "南京大屠杀"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Nanjing_Massacre",
+        "zh": "https://zh.wikipedia.org/wiki/%E5%8D%97%E4%BA%AC%E5%A4%A7%E5%B1%A0%E6%9D%80"
+      },
       "verb_form": "is",
       "period": "1937",
       "relevance": "War memory and historical interpretation",
@@ -132,6 +160,10 @@
       "event": {
         "en": "The Second Sino-Japanese War",
         "zh": "抗日战争"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Second_Sino-Japanese_War",
+        "zh": "https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E6%8A%97%E6%97%A5%E6%88%98%E4%BA%89"
       },
       "verb_form": "is",
       "period": "1937–1945",
@@ -145,6 +177,10 @@
         "en": "The Chinese Civil War",
         "zh": "国共内战"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Chinese_Civil_War",
+        "zh": "https://zh.wikipedia.org/wiki/%E5%9B%BD%E5%85%B1%E5%86%85%E6%88%98"
+      },
       "verb_form": "is",
       "period": "1945–1949",
       "relevance": "Ideological conflict and political legitimacy",
@@ -156,6 +192,10 @@
       "event": {
         "en": "The Founding of the PRC",
         "zh": "中华人民共和国成立"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/History_of_the_People%27s_Republic_of_China",
+        "zh": "https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD"
       },
       "verb_form": "is",
       "period": "1949",
@@ -169,6 +209,10 @@
         "en": "The Korean War / Resist America Aid Korea",
         "zh": "抗美援朝战争"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Korean_War",
+        "zh": "https://zh.wikipedia.org/wiki/%E6%8A%97%E7%BE%8E%E6%8F%B4%E6%9C%9D%E6%88%98%E4%BA%89"
+      },
       "verb_form": "is",
       "period": "1950–1953",
       "relevance": "China–US Cold War narratives",
@@ -180,6 +224,10 @@
       "event": {
         "en": "The Great Leap Forward",
         "zh": "大跃进"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Great_Leap_Forward",
+        "zh": "https://zh.wikipedia.org/wiki/%E5%A4%A7%E8%B7%83%E8%BF%9B"
       },
       "verb_form": "is",
       "period": "1958–1962",
@@ -193,6 +241,10 @@
         "en": "The Cultural Revolution",
         "zh": "文化大革命"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Cultural_Revolution",
+        "zh": "https://zh.wikipedia.org/wiki/%E6%96%87%E5%8C%96%E5%A4%A7%E9%9D%A9%E5%91%BD"
+      },
       "verb_form": "is",
       "period": "1966–1976",
       "relevance": "Ideology, trauma, political memory",
@@ -204,6 +256,10 @@
       "event": {
         "en": "US President Nixon's Visit to China",
         "zh": "尼克松访华"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/1972_visit_by_Richard_Nixon_to_China",
+        "zh": "https://zh.wikipedia.org/wiki/1972%E5%B9%B4%E5%B0%BC%E5%85%8B%E6%9D%BE%E8%AE%BF%E5%8D%8E"
       },
       "verb_form": "is",
       "period": "1972",
@@ -217,6 +273,10 @@
         "en": "The period of Reform and Opening Up in China",
         "zh": "改革开放"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Reform_and_Opening_Up",
+        "zh": "https://zh.wikipedia.org/wiki/%E6%94%B9%E9%9D%A9%E5%BC%80%E6%94%BE"
+      },
       "verb_form": "is",
       "period": "1978 onward",
       "relevance": "Economic modernization and globalization",
@@ -228,6 +288,10 @@
       "event": {
         "en": "The Restoration of National College Entrance Exam in China",
         "zh": "恢复高考"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Gaokao",
+        "zh": "https://zh.wikipedia.org/wiki/%E6%99%AE%E9%80%9A%E9%AB%98%E7%AD%89%E5%AD%A6%E6%A0%A1%E6%8B%9B%E7%94%9F%E5%85%A8%E5%9B%BD%E7%BB%9F%E4%B8%80%E8%80%83%E8%AF%95"
       },
       "verb_form": "is",
       "period": "1977",
@@ -241,6 +305,10 @@
         "en": "The Tiananmen Square Protests",
         "zh": "六四事件 / 天安门事件"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Tiananmen_Square_protests_of_1989",
+        "zh": "https://zh.wikipedia.org/wiki/%E5%85%AD%E5%9B%9B%E4%BA%8B%E4%BB%B6"
+      },
       "verb_form": "are",
       "period": "1989",
       "relevance": "Political framing differences",
@@ -252,6 +320,10 @@
       "event": {
         "en": "The Hong Kong Handover",
         "zh": "香港回归"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Handover_of_Hong_Kong",
+        "zh": "https://zh.wikipedia.org/wiki/%E9%A6%99%E6%B8%AF%E5%9B%9E%E6%AD%B8"
       },
       "verb_form": "is",
       "period": "1997",
@@ -265,6 +337,10 @@
         "en": "The Macau Handover",
         "zh": "澳门回归"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Handover_of_Macau",
+        "zh": "https://zh.wikipedia.org/wiki/%E6%BE%B3%E9%97%A8%E5%9B%9E%E6%AD%B8"
+      },
       "verb_form": "is",
       "period": "1999",
       "relevance": "National reunification discourse",
@@ -276,6 +352,10 @@
       "event": {
         "en": "China Joining the WTO",
         "zh": "中国加入世贸组织"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/China_and_the_World_Trade_Organization",
+        "zh": "https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E4%B8%8E%E4%B8%96%E7%95%8C%E8%B4%B8%E6%98%93%E7%BB%84%E7%BB%87"
       },
       "verb_form": "is",
       "period": "2001",
@@ -289,6 +369,10 @@
         "en": "The Beijing Olympics",
         "zh": "北京奥运会"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/2008_Summer_Olympics",
+        "zh": "https://zh.wikipedia.org/wiki/2008%E5%B9%B4%E5%8C%97%E4%BA%AC%E5%A5%A5%E8%BF%90%E4%BC%9A"
+      },
       "verb_form": "are",
       "period": "2008",
       "relevance": "Soft power and international image",
@@ -300,6 +384,10 @@
       "event": {
         "en": "The Wenchuan Earthquake",
         "zh": "汶川地震"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/2008_Sichuan_earthquake",
+        "zh": "https://zh.wikipedia.org/wiki/2008%E5%B9%B4%E6%B1%B6%E5%B7%9D%E5%9C%B0%E9%9C%87"
       },
       "verb_form": "is",
       "period": "2008",
@@ -313,6 +401,10 @@
         "en": "The South China Sea Disputes",
         "zh": "南海争议"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/South_China_Sea_dispute",
+        "zh": ""
+      },
       "verb_form": "are",
       "period": "2010s onward",
       "relevance": "Territorial disputes and security narratives",
@@ -324,6 +416,10 @@
       "event": {
         "en": "The Belt and Road Initiative",
         "zh": "一带一路倡议"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Belt_and_Road_Initiative",
+        "zh": "https://zh.wikipedia.org/wiki/%E4%B8%80%E5%B8%A6%E4%B8%80%E8%B7%AF"
       },
       "verb_form": "is",
       "period": "2013 onward",
@@ -337,6 +433,10 @@
         "en": "The Huawei and 5G Controversy",
         "zh": "华为与5G争议"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Concerns_over_Chinese_involvement_in_5G_wireless_networks",
+        "zh": "https://zh.wikipedia.org/wiki/%E5%8D%8E%E4%B8%BA%E7%9B%B8%E5%85%B3%E4%BA%89%E8%AE%AE"
+      },
       "verb_form": "is",
       "period": "2018 onward",
       "relevance": "Technology, security, and geopolitics",
@@ -348,6 +448,10 @@
       "event": {
         "en": "The China–US Trade War",
         "zh": "中美贸易战"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/China%E2%80%93United_States_trade_war",
+        "zh": "https://zh.wikipedia.org/wiki/%E4%B8%AD%E7%BE%8E%E8%B4%B8%E6%98%93%E6%88%98"
       },
       "verb_form": "is",
       "period": "2018 onward",
@@ -361,6 +465,10 @@
         "en": "The COVID-19 Pandemic",
         "zh": "新冠疫情"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/COVID-19_pandemic_in_China",
+        "zh": "https://zh.wikipedia.org/wiki/%E6%96%B0%E5%86%A0%E7%96%AB%E6%83%85"
+      },
       "verb_form": "is",
       "period": "2020 onward",
       "relevance": "Global blame narratives and public discourse",
@@ -372,6 +480,10 @@
       "event": {
         "en": "The Wuhan Lockdown",
         "zh": "武汉封城"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Wuhan_lockdown",
+        "zh": "https://zh.wikipedia.org/wiki/2019%E5%86%A0%E7%8B%80%E7%97%85%E6%AF%92%E7%97%85%E4%B8%AD%E5%9C%8B%E5%A4%A7%E9%99%B8%E7%96%AB%E5%8D%80%E5%B0%81%E9%8E%96%E6%8E%AA%E6%96%BD"
       },
       "verb_form": "is",
       "period": "2020",
@@ -385,6 +497,10 @@
         "en": "The Hong Kong Anti-Extradition Protests",
         "zh": "香港反修例运动"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/2019%E2%80%9320_Hong_Kong_protests",
+        "zh": "https://zh.wikipedia.org/wiki/%E5%8F%8D%E5%B0%8D%E9%80%83%E7%8A%AF%E6%A2%9D%E4%BE%8B%E4%BF%AE%E8%A8%82%E8%8D%89%E6%A1%88%E9%81%8B%E5%8B%95"
+      },
       "verb_form": "are",
       "period": "2019",
       "relevance": "Democracy and sovereignty narratives",
@@ -396,6 +512,10 @@
       "event": {
         "en": "The Xinjiang Controversy",
         "zh": "新疆问题"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Persecution_of_Uyghurs_in_China",
+        "zh": "https://zh.wikipedia.org/wiki/%E6%96%B0%E7%96%86%E7%A7%8D%E6%97%8F%E7%81%AD%E7%BB%9D%E6%8C%87%E6%8E%A7"
       },
       "verb_form": "is",
       "period": "2010s onward",
@@ -409,6 +529,10 @@
         "en": "The ‘Empress of China’ visit to Guangzhou",
         "zh": "“中国皇后号”商船抵达广州"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Empress_of_China_(1783)",
+        "zh": ""
+      },
       "verb_form": "is",
       "period": "1784",
       "relevance": "US-China trade relations",
@@ -420,6 +544,10 @@
       "event": {
         "en": "The Burlingame Mission",
         "zh": "蒲安臣使团"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Burlingame_Treaty",
+        "zh": ""
       },
       "verb_form": "is",
       "period": "1867",
@@ -433,6 +561,10 @@
         "en": "The Chinese Educational Mission",
         "zh": "中国幼童留美教育计划 / 清政府幼童赴美留学计划"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Chinese_Educational_Mission",
+        "zh": ""
+      },
       "verb_form": "is",
       "period": "1872–1881",
       "relevance": "US-China relations, education, cross-cultural understanding",
@@ -444,6 +576,10 @@
       "event": {
         "en": "The California Gold Rush",
         "zh": "加利福尼亚淘金热"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/California_Gold_Rush",
+        "zh": ""
       },
       "verb_form": "is",
       "period": "1849",
@@ -457,6 +593,10 @@
         "en": "The Boycott of American Goods in China",
         "zh": "中国抵制美货运动"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/1905_Chinese_boycott",
+        "zh": ""
+      },
       "verb_form": "is",
       "period": "1905–1906",
       "relevance": "US-China trade relations",
@@ -468,6 +608,10 @@
       "event": {
         "en": "China's Declaration of War on Germany and Austria-Hungary",
         "zh": "中国对德、奥宣战（参与第一次世界大战）"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/China_during_World_War_I",
+        "zh": ""
       },
       "verb_form": "is",
       "period": "1917",
@@ -481,6 +625,10 @@
         "en": "The Attack on Pearl Harbor",
         "zh": "珍珠港事件"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Attack_on_Pearl_Harbor",
+        "zh": ""
+      },
       "verb_form": "is",
       "period": "1941",
       "relevance": "Prompted US entry into World War II, Western narratives of war, East Asian geopolitics",
@@ -492,6 +640,10 @@
       "event": {
         "en": "US War Aid to China during World War II",
         "zh": "美国对华战时援助"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Second_Sino-Japanese_War",
+        "zh": ""
       },
       "verb_form": "is",
       "period": "1941–1942",
@@ -505,6 +657,10 @@
         "en": "The Manhattan Project",
         "zh": "曼哈顿计划"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Manhattan_Project",
+        "zh": ""
+      },
       "verb_form": "is",
       "period": "1939–1946",
       "relevance": "World War II, Western narratives of war, nuclear weapons, East Asian geopolitics",
@@ -516,6 +672,10 @@
       "event": {
         "en": "The First Taiwan Strait Crisis",
         "zh": "第一次台湾海峡危机"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/First_Taiwan_Strait_Crisis",
+        "zh": ""
       },
       "verb_form": "is",
       "period": "1954–1955",
@@ -529,6 +689,10 @@
         "en": "The Passage of US Civil Rights Act",
         "zh": "美国《民权法案》的通过"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Civil_Rights_Act_of_1964",
+        "zh": ""
+      },
       "verb_form": "is",
       "period": "1964",
       "relevance": "Anti-discrimination discourse, human and civil rights discourse",
@@ -540,6 +704,10 @@
       "event": {
         "en": "The Moon Landing (Apollo 11)",
         "zh": "登月（阿波罗11号）"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Apollo_11",
+        "zh": ""
       },
       "verb_form": "is",
       "period": "1969",
@@ -553,6 +721,10 @@
         "en": "The Watergate Scandal",
         "zh": "水门事件"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Watergate_scandal",
+        "zh": ""
+      },
       "verb_form": "is",
       "period": "1972",
       "relevance": "Civil governance, political espionage",
@@ -564,6 +736,10 @@
       "event": {
         "en": "The Roe v. Wade Supreme Court Decision",
         "zh": "最高法院关于“罗诉韦德案”的裁决"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Roe_v._Wade",
+        "zh": ""
       },
       "verb_form": "is",
       "period": "1973",
@@ -577,6 +753,10 @@
         "en": "The Fall of the Berlin Wall",
         "zh": "柏林墙倒塌"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Fall_of_the_Berlin_Wall",
+        "zh": ""
+      },
       "verb_form": "is",
       "period": "1989",
       "relevance": "Cold War, history of communism, historical interpretation",
@@ -588,6 +768,10 @@
       "event": {
         "en": "The Opening of the World Wide Web to the Public",
         "zh": "万维网向公众开放"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/World_Wide_Web#History",
+        "zh": ""
       },
       "verb_form": "is",
       "period": "1991",
@@ -601,6 +785,10 @@
         "en": "The Dot.com Bubble",
         "zh": "互联网泡沫"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Dot-com_bubble",
+        "zh": ""
+      },
       "verb_form": "is",
       "period": "1995–2002",
       "relevance": "Technological development and investment, capitalism",
@@ -612,6 +800,10 @@
       "event": {
         "en": "The Signing of the US-China Relations Act",
         "zh": "《美中关系法案》（2000年）"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/United_States%E2%80%93China_Relations_Act_of_2000",
+        "zh": ""
       },
       "verb_form": "is",
       "period": "2000",
@@ -625,6 +817,10 @@
         "en": "The September 11 Attacks",
         "zh": "“9·11”恐怖袭击"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/September_11_attacks",
+        "zh": ""
+      },
       "verb_form": "are",
       "period": "2001",
       "relevance": "Terrorism, US involvement in the Middle East, anti-Islamic sentiment",
@@ -636,6 +832,10 @@
       "event": {
         "en": "Hurricane Katrina",
         "zh": "飓风卡特里娜"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Hurricane_Katrina",
+        "zh": ""
       },
       "verb_form": "is",
       "period": "2005",
@@ -649,6 +849,10 @@
         "en": "The Housing Market Crash and Great Recession",
         "zh": "房地产市场崩盘与大衰退"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Financial_crisis_of_2007%E2%80%932008",
+        "zh": ""
+      },
       "verb_form": "is",
       "period": "2008",
       "relevance": "Global economic crisis, capitalism, housing market investment",
@@ -660,6 +864,10 @@
       "event": {
         "en": "The Black Lives Matter Movement",
         "zh": "“黑人的命也是命”运动"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Black_Lives_Matter",
+        "zh": ""
       },
       "verb_form": "is",
       "period": "2013",
@@ -673,6 +881,10 @@
         "en": "The Legalization of Same-Sex Marriage in the US",
         "zh": "同性婚姻合法化"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Obergefell_v._Hodges",
+        "zh": ""
+      },
       "verb_form": "is",
       "period": "2015",
       "relevance": "US law, civil rights, human rights, gender discourse",
@@ -684,6 +896,10 @@
       "event": {
         "en": "The #MeToo Movement",
         "zh": "#MeToo 运动"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Me_Too_movement",
+        "zh": ""
       },
       "verb_form": "is",
       "period": "2017",
@@ -697,6 +913,10 @@
         "en": "The Capitol Riot",
         "zh": "国会山骚乱"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/2021_United_States_Capitol_attack",
+        "zh": ""
+      },
       "verb_form": "is",
       "period": "2021",
       "relevance": "US politics, political violence",
@@ -708,6 +928,10 @@
       "event": {
         "en": "The Passage of the Affordable Care Act (Obamacare)",
         "zh": "《平价医疗法案》（奥巴马医改）获得通过"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Patient_Protection_and_Affordable_Care_Act",
+        "zh": ""
       },
       "verb_form": "is",
       "period": "2010",
@@ -721,6 +945,10 @@
         "en": "The U.S. Pivot from Middle East to Asia",
         "zh": "美国“重返亚洲”战略"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/East_Asian_foreign_policy_of_the_Obama_administration",
+        "zh": ""
+      },
       "verb_form": "is",
       "period": "2011",
       "relevance": "US-China trade relations, military focus, geopolitics",
@@ -732,6 +960,10 @@
       "event": {
         "en": "The election of Kamala Harris as the first female Vice President of the United States",
         "zh": "卡玛拉·哈里斯当选美国首位女性副总统"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Kamala_Harris",
+        "zh": ""
       },
       "verb_form": "is",
       "period": "2021",
@@ -745,6 +977,10 @@
         "en": "The Overturning of Roe v. Wade by the US Supreme Court",
         "zh": "最高法院推翻“罗诉韦德案”"
       },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/Roe_v._Wade",
+        "zh": ""
+      },
       "verb_form": "is",
       "period": "2022",
       "relevance": "US law, civil rights, human rights, gender discourse",
@@ -756,6 +992,10 @@
       "event": {
         "en": "The release of ChatGPT by OpenAI",
         "zh": "OpenAI 发布 ChatGPT"
+      },
+      "source": {
+        "en": "https://en.wikipedia.org/wiki/ChatGPT",
+        "zh": ""
       },
       "verb_form": "is",
       "period": "2022",

@@ -32,8 +32,12 @@ def load_config() -> Dict[str, Any]:
 
 
 
-def buildEnPrompt(article: str) -> str:
+def buildEnPrompt(topic: str, time_period: str, article: str) -> str:
     return "Read the provided article and extract its meaningful atomic facts.\n\
+EXTRACT A MAXIMUM OF 100 FACTS.\n\
+If there are more than 100 facts, RETURN ONLY THE 100 MOST RELEVANT FACTS.\n\
+You will also be provided a topic and a time period.\n\
+ONLY EXTRACT FACTS RELATING TO THE TOPIC AND IN THE GIVEN TIME PERIOD.\n\
 \n\
 For each fact:\n\
 - Express exactly one fact as a concise, self-contained string.\n\
@@ -46,12 +50,13 @@ For each fact:\n\
 - Do not infer, speculate, combine multiple facts, or add information not explicitly stated.\n\
 - Avoid duplicates.\n\
 - Include only facts supported by the text.\n\
+- Return only the top 100 most relevant facts if there are more than 100.\n\
 \n\
 Return the results as a JSON array of objects,  Each object must contain exactly these fields:\n\
 - \"fact\": the extracted atomic fact as a string\n\
 - \"relevance\": the relevance score as a float between 0 and 1\n\
 \n\
-Required format:\n\
+IMPORTANT!!! REQUIRED FORMAT:\n\
 [\n\
   {{\n\
     \"fact\": \"A concise atomic fact.\",\n\
@@ -61,21 +66,24 @@ Required format:\n\
 \n\
 Return nothing except the valid JSON array. Do not include Markdown, explanations, comments, or additional text.\n\
 \n\
+Topic: {0}\n\
+Time Period: {1}\n\
 Article to analyze:\n\
-{0}\n\
-".format(article)
+{2}\n\
+".format(topic, time_period, article)
 
 
 
 def buildZhPrompt(article: str) -> str:
-    return "我需要你将以下文本提示翻译成中文。你能确保含义得到保留，并仔细检查你的译文吗？如果你对某些片段的可能译法有任何疑问，请用英文向我解释其中的差异，我会协助你。\n\
-\n\
-阅读所提供的文章，并提取其中有意义的原子事实。\n\
+    return "阅读提供的文章，并提取其中有意义的原子事实。\n\
+最多提取 100 个事实。\n\
+如果事实超过 100 个，则仅返回其中相关性最高的 100 个事实。\n\
+同时还会提供一个主题和一个时间段。\n\
+仅提取与该主题相关且属于指定时间段内的事实。\n\
 \n\
 对于每个事实：\n\
-\n\
-    将恰好一个事实表述为简洁、完整且自洽的字符串。\n\
-    为其分配一个介于 0 和 1 之间的相关性分数，其中：\n\
+    将恰好一个事实表述为简洁且自洽的字符串。\n\
+    分配一个介于 0 和 1 之间的相关性分数，其中：\n\
         1.00 = 必要或高度相关\n\
         0.50 = 中等相关\n\
         0.05 = 相关性最低\n\
@@ -84,13 +92,13 @@ def buildZhPrompt(article: str) -> str:
     不得推断、猜测、合并多个事实，也不得添加文本中未明确说明的信息。\n\
     避免重复。\n\
     仅包含文本支持的事实。\n\
+    如果事实超过 100 个，仅返回相关性最高的 100 个事实。\n\
 \n\
-以 JSON 数组形式返回结果。每个对象必须恰好包含以下字段：\n\
+以 JSON 对象数组的形式返回结果。每个对象必须恰好包含以下字段：\n\
+    \"fact\"：以字符串形式表示提取出的原子事实\n\
+    \"relevance\"：介于 0 和 1 之间的浮点数相关性分数\n\
 \n\
-    \"fact\": 提取出的原子事实字符串\n\
-    \"relevance\": 介于 0 和 1 之间的相关性分数，类型为浮点数\n\
-\n\
-必需格式：\n\
+重要！！！必需格式：\n\
 [\n\
   {{\n\
     \"fact\": \"简洁的原子事实。\",\n\
@@ -100,9 +108,11 @@ def buildZhPrompt(article: str) -> str:
 \n\
 除有效的 JSON 数组外，不得返回任何内容。不得包含 Markdown、解释、注释或其他文本。\n\
 \n\
+主题：{0}\n\
+时间段：{1}\n\
 要分析的文章：\n\
-{0}\n\
-".format(article)
+{2}\n\
+".format(topic, time_period, article)
 
 
 
@@ -116,6 +126,8 @@ def parse_content(
 
 def extract_facts(
     article: str,
+    topic: str,
+    time_period: str,
     lang: str,
     model: str = "Qwen3.8-Flash-Next-oQ4e-mtp",
 ) -> list[Dict[str, Any]]:
@@ -129,7 +141,7 @@ def extract_facts(
     max_tokens = config["onix"]["max_tokens"]
     api_key = config["onix"]["api_key"]
     timeout = config["onix"]["timeout"]
-    prompt = buildEnPrompt(article) if lang == "En" else buildZhPrompt(article)
+    prompt = buildEnPrompt(topic, time_period, article) if lang.lower() == "en" else buildZhPrompt(article)
 
     try:
         llm_response = requests.post(
@@ -153,10 +165,16 @@ def extract_facts(
         raise requests.RequestException(f"Extract failed: {e}")
 
     results = fact_data.get("content", [])
+
     if not results:
         return []
-    results = parse_content(results)
-    
+
+    try:
+        results = parse_content(results)
+    except Exception as e:
+        print(results)
+        raise ValueError(f"Failed to parse content: {e}")
+        
     return results
 
 
@@ -167,7 +185,7 @@ def main() -> int:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python extract_facts.py "{article}" --lang "En"
+  python extract_facts.py "{article}" --lang "en"
         """
     )
 
@@ -178,7 +196,7 @@ Examples:
 
     parser.add_argument(
         "--lang",
-        help="Language of the article text (default: En)."
+        help="Language of the article text"
     )
 
     parser.add_argument(

@@ -24,15 +24,11 @@ def search_index(
         rows = connection.execute(
             """
             SELECT
-                id,
                 topic,
-                article_title,
-                article_url,
-                article_extract,
+                source_url,
                 facts_json
             FROM articles
             WHERE topic LIKE ?
-            ORDER BY article_title ASC
             """,
             (f"%{topic.strip()}%",)
         ).fetchall()
