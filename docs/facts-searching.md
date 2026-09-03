@@ -14,7 +14,7 @@ The system enables efficient retrieval of factual information from large collect
 
 ### Building a New Index
 
-To build a new index with default parameters:
+To build a new index from the cli with default parameters:
 
 ```bash
 python scripts/build_index.py \
@@ -32,7 +32,33 @@ python scripts/build_index.py \
 
 ### Searching the Index
 
-To search for facts with default parameters:
+To search from a python script for facts with default parameters:
+
+```python
+from fact_indexing.search_index import search_index
+
+# Search for facts about a topic
+results = search_index(
+    topic="World War II",
+    index_path="../data/index_en_en.sqlite3"
+)
+```
+
+Results format:
+{
+    "topic": "The Opium Wars",
+    "source_url": "https://en.wikipedia.org/wiki/Opium_Wars",
+    "facts": [
+        {
+            "fact": "The Opium Wars were a series of wars fought between China and Britain over the trade of opium.",
+            "relevance": 0.95
+        },
+        ...
+    ]
+}
+
+
+To search from the cli for facts with default parameters:
 
 ```bash
 python scripts/search_index.py \
