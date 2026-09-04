@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any
 from urllib.parse import urlparse, unquote
 
-from fetch_articles import fetch_articles
 from extract_facts import extract_facts
 
 
@@ -47,12 +46,17 @@ def fetch_article(title: str) -> str:
         headers={"User-Agent": "MyWikipediaClient/1.0"}
     )
 
-    pages = response.json()["query"]["pages"]
-    page = next(iter(pages.values()))
+    try:
+        pages = response.json()["query"]["pages"]
+        page = next(iter(pages.values()))
 
-    plain_text = page.get("extract", "")
+        plain_text = page.get("extract", "")
 
-    return plain_text
+        return plain_text
+    except Exception as e:
+        print(f"Failed to fetch article '{title}': {e}", file=sys.stderr)
+        print(f"Response JSON: {response.json()}")
+        raise Exception(f"Failed to fetch article '{title}': {e}")
 
 
 
@@ -169,6 +173,20 @@ Examples:
         required=True
     )
 
+    parser.add_argument(
+        "--start-from",
+        help="Start from a specific topic index in the topics file.",
+        type=int,
+        default=0
+    )
+
+    parser.add_argument(
+        "--count",
+        help="Number of topics to process from the start index.",
+        type=int,
+        default=None
+    )
+
     args = parser.parse_args()
 
     # Read topics out of topics file & format.
@@ -194,6 +212,10 @@ Examples:
 
             if topic_en and topic_zh:
                 topics.append(dict(id=id_val, topic=topic_en, source=source, year=period))
+
+    topics = topics[args.start_from:]
+    if args.count is not None:
+        topics = topics[:args.count]
 
     build_index(
         topics=topics,
