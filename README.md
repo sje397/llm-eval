@@ -17,7 +17,8 @@ This repo has **two** evaluation pipelines:
 2. **File-based batch pipeline (Python, `scripts/` + `data/`)** — the Sprint 3
    production run that produces the 1,200-output dataset. Each stage is a
    standalone file-in/file-out script; see
-   [`docs/data-script-structure.md`](docs/data-script-structure.md).
+   [`docs/data-script-structure.md`](docs/data-script-structure.md) and
+   [**how to run the scripts**](docs/running-scripts.md).
 
 > The file-based pipeline is what we're using for the real evaluation dataset.
 > To reach the local models on Mímir during development, see

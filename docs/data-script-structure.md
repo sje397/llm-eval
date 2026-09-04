@@ -108,11 +108,11 @@ Config lives in `config/endpoints.yaml` (gitignored) or `.env`:
 
 ```yaml
 us:                            # scenario responses, US model — Anthropic dialect
-  base_url: "<Anthropic API URL>"
+  base_url: "https://api.anthropic.com/v1/messages"
   api_key: "<anthropic key>"
   model: "sonnet-5"
 cn:                            # scenario responses, CN model — Anthropic dialect
-  base_url: "https://api.deepseek.com/anthropic"
+  base_url: "https://api.deepseek.com/anthropic/v1/messages"
   api_key: "<deepseek key>"
   model: "deepseek-v4-pro"
 local:                         # downstream (facts/verify/classify/score/judge)
@@ -145,6 +145,8 @@ stages.
   generated output that costs money to reproduce.
 - **Mock mode:** set `MOCK_MODE=true` to run against fake responses during
   development so no real endpoint is called.
+
+See **[running-scripts.md](running-scripts.md)** for step-by-step commands.
 
 ## What Each Person Owns (LLMEV)
 
