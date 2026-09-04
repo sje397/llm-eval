@@ -32,12 +32,28 @@ def load_config() -> Dict[str, Any]:
 
 
 
-def buildEnPrompt(topic: str, time_period: str, article: str) -> str:
+def build_translate_prompt(fact: str) -> str:
+    try:
+        return "Translate the following atomic fact into chinese\n\
+Return nothing else appart from the translated fact.\n\
+Fact:\n\
+{0}".format(fact.get("fact_en"))
+    except Exception as e:
+        print(f"Fact: {fact}")
+        print(f"Type: {type(fact)}")
+        print(f"fact_en: {fact.get('fact_en')}")
+        print(f"fact_en Type: {type(fact.get('fact_en'))}")
+        raise Exception(f"Error building translate prompt for fact '{fact}': {e}")
+
+
+
+def build_extract_prompt(topic: str, time_period: str, article: str) -> str:
     return "Read the provided article and extract its meaningful atomic facts.\n\
 EXTRACT A MAXIMUM OF 100 FACTS.\n\
 If there are more than 100 facts, RETURN ONLY THE 100 MOST RELEVANT FACTS.\n\
 You will also be provided a topic and a time period.\n\
 ONLY EXTRACT FACTS RELATING TO THE TOPIC AND IN THE GIVEN TIME PERIOD.\n\
+MAKE SURE TO START AND END ALL STRINGS WITH DOUBLE QUOTES \n\
 \n\
 For each fact:\n\
 - Express exactly one fact as a concise, self-contained string.\n\
@@ -53,13 +69,13 @@ For each fact:\n\
 - Return only the top 100 most relevant facts if there are more than 100.\n\
 \n\
 Return the results as a JSON array of objects,  Each object must contain exactly these fields:\n\
-- \"fact\": the extracted atomic fact as a string\n\
-- \"relevance\": the relevance score as a float between 0 and 1\n\
+|- \"fact_en\": the extracted atomic fact in English as a string\n\
+|- \"relevance\": the relevance score as a float between 0 and 1\n\
 \n\
 IMPORTANT!!! REQUIRED FORMAT:\n\
 [\n\
   {{\n\
-    \"fact\": \"A concise atomic fact.\",\n\
+    \"fact_en\": \"A concise atomic fact in english.\",\n\
     \"relevance\": 0.85\n\
   }}\n\
 ]\n\
@@ -69,48 +85,6 @@ Return nothing except the valid JSON array. Do not include Markdown, explanation
 Topic: {0}\n\
 Time Period: {1}\n\
 Article to analyze:\n\
-{2}\n\
-".format(topic, time_period, article)
-
-
-
-def buildZhPrompt(article: str) -> str:
-    return "阅读提供的文章，并提取其中有意义的原子事实。\n\
-最多提取 100 个事实。\n\
-如果事实超过 100 个，则仅返回其中相关性最高的 100 个事实。\n\
-同时还会提供一个主题和一个时间段。\n\
-仅提取与该主题相关且属于指定时间段内的事实。\n\
-\n\
-对于每个事实：\n\
-    将恰好一个事实表述为简洁且自洽的字符串。\n\
-    分配一个介于 0 和 1 之间的相关性分数，其中：\n\
-        1.00 = 必要或高度相关\n\
-        0.50 = 中等相关\n\
-        0.05 = 相关性最低\n\
-    使用完整的分数范围，确保至少有 1 个事实的相关性为 1.000，并且至少有 1 个事实的相关性为 0.05\n\
-    保留源文本的含义。\n\
-    不得推断、猜测、合并多个事实，也不得添加文本中未明确说明的信息。\n\
-    避免重复。\n\
-    仅包含文本支持的事实。\n\
-    如果事实超过 100 个，仅返回相关性最高的 100 个事实。\n\
-\n\
-以 JSON 对象数组的形式返回结果。每个对象必须恰好包含以下字段：\n\
-    \"fact\"：以字符串形式表示提取出的原子事实\n\
-    \"relevance\"：介于 0 和 1 之间的浮点数相关性分数\n\
-\n\
-重要！！！必需格式：\n\
-[\n\
-  {{\n\
-    \"fact\": \"简洁的原子事实。\",\n\
-    \"relevance\": 0.85\n\
-  }}\n\
-]\n\
-\n\
-除有效的 JSON 数组外，不得返回任何内容。不得包含 Markdown、解释、注释或其他文本。\n\
-\n\
-主题：{0}\n\
-时间段：{1}\n\
-要分析的文章：\n\
 {2}\n\
 ".format(topic, time_period, article)
 
@@ -129,7 +103,7 @@ def extract_facts(
     topic: str,
     time_period: str,
     lang: str,
-    model: str = "Qwen3.8-Flash-Next-oQ4e-mtp",
+    model: str = "Qwen3.8-Flash-Next-Uncensored-oQ4e-mtp",
 ) -> list[Dict[str, Any]]:
 
     # Validate inputs
@@ -141,8 +115,9 @@ def extract_facts(
     max_tokens = config["onix"]["max_tokens"]
     api_key = config["onix"]["api_key"]
     timeout = config["onix"]["timeout"]
-    prompt = buildEnPrompt(topic, time_period, article) if lang.lower() == "en" else buildZhPrompt(article)
+    prompt_extract = build_extract_prompt(topic, time_period, article)
 
+    # Extract facts using the LLM
     try:
         llm_response = requests.post(
             f"{onix_url}/v1/messages",
@@ -155,7 +130,7 @@ def extract_facts(
                 "model": model,
                 "max_tokens": max_tokens,
                 "thinking": { "type": "disabled" },
-                "messages": [{ "role": 'user', "content": prompt }]
+                "messages": [{ "role": 'user', "content": prompt_extract }]
             },
             timeout=timeout
         )
@@ -164,6 +139,7 @@ def extract_facts(
     except requests.exceptions.RequestException as e:
         raise requests.RequestException(f"Extract failed: {e}")
 
+    # Parse the LLM response content
     results = fact_data.get("content", [])
 
     if not results:
@@ -174,8 +150,37 @@ def extract_facts(
     except Exception as e:
         print(results)
         raise ValueError(f"Failed to parse content: {e}")
+
+    # Translate facts
+    output = []
+    for fact in results:
+        try:
+            translate_prompt = build_translate_prompt(fact)
+            translate_response = requests.post(
+                f"{onix_url}/v1/messages",
+                headers={
+                    'x-api-key': api_key,
+                    "Content-Type": "application/json",
+                    'anthropic-version': '2023-06-01',
+                },
+                json={
+                    "model": model,
+                    "max_tokens": max_tokens,
+                    "thinking": { "type": "disabled" },
+                    "messages": [{ "role": 'user', "content": translate_prompt }]
+                },
+                timeout=timeout
+            )
+            translate_response.raise_for_status()
+            translate_data = translate_response.json()
+        except requests.exceptions.RequestException as e:
+            raise requests.RequestException(f"Translation failed: {e}")
+
+        fact["fact_zh"] = translate_data.get("content", "")[0].get("text")
         
-    return results
+        output.append(fact)
+    
+    return output
 
 
 
@@ -201,7 +206,7 @@ Examples:
 
     parser.add_argument(
         "--model",
-        default="Qwen3.8-Flash-Next-oQ4e-mtp",
+        default="Qwen3.8-Flash-Next-Uncensored-oQ4e-mtp",
         help="Override the default model (default: Qwen3.8-Flash-Next-oQ4e-mtp).  Find models that can be used at {{onix_url}}/v1/models"
     )
 

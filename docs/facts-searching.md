@@ -1,200 +1,172 @@
-# Facts Indexing System Documentation
+# Topic Fact Indexing System - Quick Start Guide
 
-## Summary
+## Overview
+Three Python scripts for extracting atomic facts from Wikipedia articles and storing them in a SQLite database.
 
-This documentation describes a system for creating and querying an SQLite database index containing extracted facts from Wikipedia articles. The system consists of three main components:
+---
 
-- **`build_index.py`**: Creates a `.sqlite3` index by fetching Wikipedia articles, extracting facts using LLMs, and storing the structured data in a database
-- **`search_index.py`**: Queries the SQLite database to retrieve relevant facts from indexed articles based on search topics
-- **`extract_facts.py`**: Extracts structured facts from Wikipedia article text using an LLM-powered extraction service
+## 1. build_index.py
+**Purpose:** Fetches Wikipedia articles, extracts facts using LLMs, stores in SQLite.
 
-The system enables efficient retrieval of factual information from large collections of Wikipedia articles by pre-extracting and indexing key facts, then allowing semantic search queries to retrieve relevant information.
-
-## How to Use
-
-### Building a New Index
-
-To build a new index with default parameters:
-
+### Usage (CLI)
 ```bash
-python scripts/build_index.py \
-  --topics-file ../../data/scenarios.json \
-  --lang "en" \
-  --model "Qwen3.8-Flash-Next-oQ4e-mtp" \
-  --db-file "../../data/index_en_en.sqlite3"
+python build_index.py \
+    --topics-file topics.json \
+    --lang en \
+    --model Qwen3.8-Flash-Next-Uncensored-oQ4e-mtp \
+    --db-file index.db
 ```
 
-**Parameters:**
-- `--topics-file`: Path to JSON file containing list of topics/scenarios to index
-- `--lang`: Language code ("en" for English, "zh" for Chinese)
-- `--model`: LLM model name to use for fact extraction
-- `--db-file`: Output path for the SQLite database file
+### Python API Usage
+```python
+from build_index import build_index
 
-### Searching the Index
+indexed_count = build_index(
+    topics=[
+        {
+            "id": "1",
+            "topic": "World War II",
+            "source": "https://en.wikipedia.org/wiki/World_War_II",
+            "year": "1939-1945"
+        }
+    ],
+    lang="en",
+    model="Qwen3.8-Flash-Next-Uncensored-oQ4e-mtp",
+    index_path="index.db"
+)
 
-To search for facts with default parameters:
+print(f"Indexed {indexed_count} topics")
+```
 
+### Input: Topics List
+```python
+topics = [
+    {
+        "id": "1",
+        "topic": "World War II",
+        "source": "https://en.wikipedia.org/wiki/World_War_II",
+        "year": "1939-1945"
+    },
+    {
+        "id": "2",
+        "topic": "Cold War",
+        "source": "https://en.wikipedia.org/wiki/Cold_War",
+        "year": "1947-1991"
+    }
+]
+```
+
+### Output: SQLite Database (`index.db`)
+Table `articles`:
+- `topic` (TEXT, PRIMARY KEY)
+- `source_url` (TEXT)
+- `facts_json` (TEXT - JSON array of facts)
+
+---
+
+## 2. extract_facts.py
+**Purpose:** Extracts atomic facts from article text and translates to Chinese.
+
+### Usage (CLI)
 ```bash
-python scripts/search_index.py \
-  --topic "{topic as in scenarios.json}" \
-  --index-path "../data/index_en_en.sqlite3"
+python extract_facts.py "World War II" --lang en
 ```
 
-**Example:**
+### Python API Usage
+```python
+from extract_facts import extract_facts
+
+facts = extract_facts(
+    article="Your article text here",
+    topic="World War II",
+    time_period="1939-1945",
+    lang="en",
+    model="Qwen3.8-Flash-Next-Uncensored-oQ4e-mtp"
+)
+
+print(json.dumps(facts, indent=2, ensure_ascii=False))
+```
+
+### Output Format
+```json
+[
+  {
+    "fact_en": "World War II was fought between 1939 and 1945.",
+    "relevance": 0.95,
+    "fact_zh": "第二次世界大战于1939年至1945年间进行。"
+  }
+]
+```
+
+---
+
+## 3. search_index.py
+**Purpose:** Searches the index database for facts by topic.
+
+### Usage (CLI)
 ```bash
-python scripts/search_index.py \
-  --topic "World War II" \
-  --index-path "../data/index_en_en.sqlite3"
+python search_index.py \
+    --topic "World War II" \
+    --index-path index.db
 ```
 
-### Index Naming Convention
+### Python API Usage
+```python
+from search_index import search_index
 
-Index files follow the pattern: `index_{lang}_{lang}.sqlite3`
+results = search_index(
+    topic="World War II",
+    index_path="../data/index.db"
+)
 
-- **First component** (`{1}`): Wikipedia language version (e.g., "en" for English Wikipedia)
-- **Second component** (`{2}`): Language of stored facts (e.g., "en" for English facts)
-
-Examples:
-- `index_en_en.sqlite3`: Facts in English from English Wikipedia
-- `index_zh_en.sqlite3`: Facts in English from Chinese Wikipedia
-- `index_en_zh.sqlite3`: Facts in Chinese from English Wikipedia
-
-## Technical Explanation
-
-### File Structure Overview
-
-```
-scripts/
-├── build_index.py          # Main indexing script
-└── fact-indexing/
-    ├── search_index.py     # Search functionality
-    └── extract_facts.py    # Fact extraction logic
+for result in results:
+    print(f"Topic: {result['topic']}")
+    print(f"Facts count: {len(result['facts'])}")
+    for fact in result['facts'][:3]:  # Show first 3 facts
+        print(f"  - {fact['fact_en']} (relevance: {fact['relevance']})")
 ```
 
-### `build_index.py` - Index Building Script
-
-**Purpose**: Fetches Wikipedia articles, extracts facts using LLMs, and stores them in an SQLite database.
-
-#### Key Functions:
-
-1. **`initialize_index(index_path)`** (Lines 13-26)
-   - Creates the SQLite database if it doesn't exist
-   - Creates `articles` table with columns: `topic`, `source_url`, `facts_json`
-   - Uses `CREATE TABLE IF NOT EXISTS` for idempotency
-
-2. **`fetch_article(title)`** (Lines 29-47)
-   - Makes API call to Wikipedia's MediaWiki API
-   - Retrieves plain text extract from article pages
-   - Handles redirects automatically
-   - Returns formatted article text
-
-3. **`build_index(topics, lang, model, index_path)`** (Lines 50-126)
-   - Main orchestration function
-   - Iterates through topics from input file
-   - For each topic:
-     - Extracts article title from source URL
-     - Fetches Wikipedia article text
-     - Calls `extract_facts()` to extract structured facts
-     - Converts facts to JSON format
-     - Stores in SQLite database
-   - Returns count of successfully indexed topics
-
-4. **Main block** (Lines 129-175)
-   - Parses command-line arguments
-   - Reads scenarios from JSON file
-   - Filters topics based on language selection
-   - Calls `build_index()` with appropriate parameters
-
-#### Data Flow:
-```
-scenarios.json → build_index() → fetch_article() → extract_facts() → SQLite database
+### Output
+```python
+[
+  {
+    "topic": "World War II",
+    "source_url": "https://en.wikipedia.org/wiki/World_War_II",
+    "facts": [
+      {"fact_en": "...", "relevance": 0.95, "fact_zh": "..."},
+      ...
+    ]
+  }
+]
 ```
 
-### `search_index.py` - Search Functionality
+---
 
-**Purpose**: Queries the SQLite database to retrieve facts matching a search topic.
-
-#### Key Functions:
-
-1. **`search_index(topic, index_path)`** (Lines 4-23)
-   - Validates input topic
-   - Connects to SQLite database
-   - Executes SQL query with LIKE pattern matching on `topic` column
-   - Parses JSON facts from database into Python objects
-   - Returns list of matching results with structured data
-
-#### Search Strategy:
-- Uses `LIKE ?` with `%{topic}%` pattern for partial matching
-- Retrieves all articles where topic contains the search term
-- Converts stored JSON to Python dictionaries for easy access
-
-### `extract_facts.py` - Fact Extraction Logic
-
-**Purpose**: Extracts structured facts from Wikipedia article text using an LLM service.
-
-#### Key Functions:
-
-1. **`extract_facts(article, lang, model)`** (Lines 4-52)
-   - Validates input article text
-   - Loads configuration (host, port, API key, timeout)
-   - Builds appropriate prompt based on language (English/Chinese)
-   - Makes POST request to LLM service endpoint
-   - Parses and validates response
-   - Returns list of extracted facts
-
-#### Integration Points:
-- Called by `build_index.py` during the indexing process
-- Uses external LLM service via HTTP API
-- Supports both English and Chinese language processing
-
-### System Architecture
-
-```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  scenarios.json │────▶│   build_index.py │────▶│  extract_facts  │
-└─────────────────┘     │                  │     │                 │
-                        │  Fetch articles  │     │  LLM Service    │
-                        │  Extract facts   │◀────┤                 │
-                        │  Store in DB     │     └─────────────────┘
-                        └──────────────────┘
-                                │
-                                ▼
-                        ┌──────────────────┐
-                        │   SQLite DB      │
-                        │  (index_*.sqlite)│
-                        └──────────────────┘
-                                │
-                                ▼
-                        ┌──────────────────┐
-                        │ search_index.py  │◀─── Search Query
-                        └──────────────────┘
+## Configuration (Optional)
+Create `scripts/indexing_config.json` for API settings:
+```json
+{
+  "onix": {
+    "host": "localhost",
+    "port": 21434,
+    "timeout": 120,
+    "api_key": "your-api-key",
+    "max_tokens": 4096
+  }
+}
 ```
 
-### Configuration Dependencies
+---
 
-The system relies on external configuration:
-- **LLM Service**: Hosted at `http://{host}:{port}` with API authentication
-- **Input Data**: JSON file containing scenarios/topics to index
-- **Model**: LLM model name for fact extraction (default: "Qwen3.8-Flash-Next-oQ4e-mtp")
+## Quick Workflow
+1. **Build Index:** Use `build_index()` to populate the database
+2. **Extract Facts:** Use `extract_facts()` for single articles
+3. **Search:** Use `search_index()` to query the database
 
-### Error Handling
+---
 
-- Input validation for empty topics and articles
-- HTTP request timeout handling
-- JSON parsing error management
-- Database connection safety using context managers
-
-## Best Practices
-
-1. **Index Naming**: Always use consistent naming convention to avoid confusion between language components
-2. **Topic Selection**: Ensure topics in scenarios.json match Wikipedia article titles
-3. **Database Location**: Store indexes in persistent storage for production use
-4. **Model Selection**: Choose appropriate LLM model based on fact extraction requirements
-5. **Language Consistency**: Match `--lang` parameter with both source and target language needs
-
-## Troubleshooting
-
-- **Empty results**: Check that topics exist in Wikipedia and are properly formatted
-- **Connection errors**: Verify LLM service is running and accessible
-- **Database issues**: Ensure SQLite file has write permissions
-- **Slow indexing**: Consider batching or parallelizing for large topic lists
+## Notes
+- Supports partial topic matching in search (`LIKE '%topic%'`)
+- Maximum 100 facts per article (top relevance)
+- Facts include English, Chinese translation, and relevance score
+- Relevance scores: 1.00 (essential), 0.50 (moderate), 0.05 (least relevant)
