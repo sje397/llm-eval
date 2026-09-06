@@ -7,3 +7,4 @@ data/*
 !data/scenarios.json
 !data/index.sqlite3
 config/endpoints.yaml
+__pycache__/
