@@ -8,3 +8,4 @@ data/*
 !data/index.sqlite3
 config/endpoints.yaml
 __pycache__/
+!data/raw/
