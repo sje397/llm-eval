@@ -5,4 +5,5 @@ dist/
 demo/data/
 data/*
 !data/scenarios.json
+!data/index.sqlite3
 config/endpoints.yaml
