@@ -1,0 +1,666 @@
+{
+  "generated_at": "2026-09-07T17:47:48.934865+00:00",
+  "total_scenarios_expected": 60,
+  "total_topics_found_in_index": 60,
+  "topics_passing": 60,
+  "topics_failing": 0,
+  "scenarios_missing_from_index": [],
+  "topics_in_index_unreferenced_by_any_scenario": [],
+  "near_miss_topic_matches": [],
+  "topics": [
+    {
+      "topic": "China Joining the WTO",
+      "scenario_id": "CN-20",
+      "status": "PASS",
+      "fact_count": 101,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "101 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "China's Declaration of War on Germany and Austria-Hungary",
+      "scenario_id": "US-06",
+      "status": "PASS",
+      "fact_count": 99,
+      "defects": []
+    },
+    {
+      "topic": "Hurricane Katrina",
+      "scenario_id": "US-20",
+      "status": "PASS",
+      "fact_count": 103,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "103 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The #MeToo Movement",
+      "scenario_id": "US-24",
+      "status": "PASS",
+      "fact_count": 105,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "105 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Attack on Pearl Harbor",
+      "scenario_id": "US-07",
+      "status": "PASS",
+      "fact_count": 293,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "293 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Beijing Olympics",
+      "scenario_id": "CN-21",
+      "status": "PASS",
+      "fact_count": 96,
+      "defects": []
+    },
+    {
+      "topic": "The Belt and Road Initiative",
+      "scenario_id": "CN-24",
+      "status": "PASS",
+      "fact_count": 113,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "113 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Black Lives Matter Movement",
+      "scenario_id": "US-22",
+      "status": "PASS",
+      "fact_count": 103,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "103 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Boxer Rebellion",
+      "scenario_id": "CN-04",
+      "status": "PASS",
+      "fact_count": 92,
+      "defects": []
+    },
+    {
+      "topic": "The Boycott of American Goods in China",
+      "scenario_id": "US-05",
+      "status": "PASS",
+      "fact_count": 115,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "115 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Burlingame Mission",
+      "scenario_id": "US-02",
+      "status": "PASS",
+      "fact_count": 100,
+      "defects": []
+    },
+    {
+      "topic": "The COVID-19 Pandemic",
+      "scenario_id": "CN-27",
+      "status": "PASS",
+      "fact_count": 95,
+      "defects": []
+    },
+    {
+      "topic": "The California Gold Rush",
+      "scenario_id": "US-04",
+      "status": "PASS",
+      "fact_count": 101,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "101 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Capitol Riot",
+      "scenario_id": "US-25",
+      "status": "PASS",
+      "fact_count": 228,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "228 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The China–US Trade War",
+      "scenario_id": "CN-26",
+      "status": "PASS",
+      "fact_count": 141,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "141 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Chinese Civil War",
+      "scenario_id": "CN-09",
+      "status": "PASS",
+      "fact_count": 100,
+      "defects": []
+    },
+    {
+      "topic": "The Chinese Educational Mission",
+      "scenario_id": "US-03",
+      "status": "PASS",
+      "fact_count": 96,
+      "defects": []
+    },
+    {
+      "topic": "The Cultural Revolution",
+      "scenario_id": "CN-13",
+      "status": "PASS",
+      "fact_count": 365,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "365 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Dot.com Bubble",
+      "scenario_id": "US-17",
+      "status": "PASS",
+      "fact_count": 99,
+      "defects": []
+    },
+    {
+      "topic": "The Fall of the Berlin Wall",
+      "scenario_id": "US-15",
+      "status": "PASS",
+      "fact_count": 248,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "248 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The First Sino-Japanese War",
+      "scenario_id": "CN-03",
+      "status": "PASS",
+      "fact_count": 98,
+      "defects": []
+    },
+    {
+      "topic": "The First Taiwan Strait Crisis",
+      "scenario_id": "US-10",
+      "status": "PASS",
+      "fact_count": 101,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "101 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Founding of the PRC",
+      "scenario_id": "CN-10",
+      "status": "PASS",
+      "fact_count": 128,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "128 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Great Leap Forward",
+      "scenario_id": "CN-12",
+      "status": "PASS",
+      "fact_count": 195,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "195 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Hong Kong Anti-Extradition Protests",
+      "scenario_id": "CN-29",
+      "status": "PASS",
+      "fact_count": 126,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "126 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Hong Kong Handover",
+      "scenario_id": "CN-18",
+      "status": "PASS",
+      "fact_count": 92,
+      "defects": []
+    },
+    {
+      "topic": "The Housing Market Crash and Great Recession",
+      "scenario_id": "US-21",
+      "status": "PASS",
+      "fact_count": 103,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "103 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Huawei and 5G Controversy",
+      "scenario_id": "CN-25",
+      "status": "PASS",
+      "fact_count": 112,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "112 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Korean War / Resist America Aid Korea",
+      "scenario_id": "CN-11",
+      "status": "PASS",
+      "fact_count": 96,
+      "defects": []
+    },
+    {
+      "topic": "The Legalization of Same-Sex Marriage in the US",
+      "scenario_id": "US-23",
+      "status": "PASS",
+      "fact_count": 100,
+      "defects": []
+    },
+    {
+      "topic": "The Macau Handover",
+      "scenario_id": "CN-19",
+      "status": "PASS",
+      "fact_count": 98,
+      "defects": []
+    },
+    {
+      "topic": "The Manhattan Project",
+      "scenario_id": "US-09",
+      "status": "PASS",
+      "fact_count": 110,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "110 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The May Fourth Movement",
+      "scenario_id": "CN-06",
+      "status": "PASS",
+      "fact_count": 126,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "126 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Moon Landing (Apollo 11)",
+      "scenario_id": "US-12",
+      "status": "PASS",
+      "fact_count": 105,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "105 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Nanjing Massacre",
+      "scenario_id": "CN-07",
+      "status": "PASS",
+      "fact_count": 382,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "382 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Opening of the World Wide Web to the Public",
+      "scenario_id": "US-16",
+      "status": "PASS",
+      "fact_count": 92,
+      "defects": []
+    },
+    {
+      "topic": "The Opium Wars",
+      "scenario_id": "CN-01",
+      "status": "PASS",
+      "fact_count": 153,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "153 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Overturning of Roe v. Wade by the US Supreme Court",
+      "scenario_id": "US-29",
+      "status": "PASS",
+      "fact_count": 94,
+      "defects": []
+    },
+    {
+      "topic": "The Passage of US Civil Rights Act",
+      "scenario_id": "US-11",
+      "status": "PASS",
+      "fact_count": 134,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "134 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Passage of the Affordable Care Act (Obamacare)",
+      "scenario_id": "US-26",
+      "status": "PASS",
+      "fact_count": 152,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "152 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Restoration of National College Entrance Exam in China",
+      "scenario_id": "CN-16",
+      "status": "PASS",
+      "fact_count": 108,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "108 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Roe v. Wade Supreme Court Decision",
+      "scenario_id": "US-14",
+      "status": "PASS",
+      "fact_count": 112,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "112 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Second Sino-Japanese War",
+      "scenario_id": "CN-08",
+      "status": "PASS",
+      "fact_count": 117,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "117 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The September 11 Attacks",
+      "scenario_id": "US-19",
+      "status": "PASS",
+      "fact_count": 117,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "117 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Signing of the US-China Relations Act",
+      "scenario_id": "US-18",
+      "status": "PASS",
+      "fact_count": 92,
+      "defects": []
+    },
+    {
+      "topic": "The South China Sea Disputes",
+      "scenario_id": "CN-23",
+      "status": "PASS",
+      "fact_count": 110,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "110 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Taiping Rebellion",
+      "scenario_id": "CN-02",
+      "status": "PASS",
+      "fact_count": 192,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "192 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Tiananmen Square Protests",
+      "scenario_id": "CN-17",
+      "status": "PASS",
+      "fact_count": 154,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "154 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The U.S. Pivot from Middle East to Asia",
+      "scenario_id": "US-27",
+      "status": "PASS",
+      "fact_count": 107,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "107 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Watergate Scandal",
+      "scenario_id": "US-13",
+      "status": "PASS",
+      "fact_count": 98,
+      "defects": []
+    },
+    {
+      "topic": "The Wenchuan Earthquake",
+      "scenario_id": "CN-22",
+      "status": "PASS",
+      "fact_count": 99,
+      "defects": []
+    },
+    {
+      "topic": "The Wuhan Lockdown",
+      "scenario_id": "CN-28",
+      "status": "PASS",
+      "fact_count": 94,
+      "defects": []
+    },
+    {
+      "topic": "The Xinhai Revolution",
+      "scenario_id": "CN-05",
+      "status": "PASS",
+      "fact_count": 123,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "123 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The Xinjiang Controversy",
+      "scenario_id": "CN-30",
+      "status": "PASS",
+      "fact_count": 281,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "281 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The election of Kamala Harris as the first female Vice President of the United States",
+      "scenario_id": "US-28",
+      "status": "PASS",
+      "fact_count": 107,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "107 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The period of Reform and Opening Up in China",
+      "scenario_id": "CN-15",
+      "status": "PASS",
+      "fact_count": 94,
+      "defects": []
+    },
+    {
+      "topic": "The release of ChatGPT by OpenAI",
+      "scenario_id": "US-30",
+      "status": "PASS",
+      "fact_count": 116,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "116 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "The ‘Empress of China’ visit to Guangzhou",
+      "scenario_id": "US-01",
+      "status": "PASS",
+      "fact_count": 100,
+      "defects": []
+    },
+    {
+      "topic": "US President Nixon's Visit to China",
+      "scenario_id": "CN-14",
+      "status": "PASS",
+      "fact_count": 128,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "128 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    },
+    {
+      "topic": "US War Aid to China during World War II",
+      "scenario_id": "US-08",
+      "status": "PASS",
+      "fact_count": 144,
+      "defects": [
+        {
+          "type": "high_fact_count",
+          "severity": "info",
+          "detail": "144 facts found (target was ~100). Confirmed with Michael (2026-09) this is expected — the cap isn't strictly enforced because the generation model couldn't reliably count to 100, so this is informational, not a failure."
+        }
+      ]
+    }
+  ]
+}
