@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LLMEV Engagement Rubric Output",
+  "description": "Machine-readable schema for LLMEV-104 engagement classification.",
+  "type": "object",
+  "required": [
+    "scenario_id",
+    "rubric_version",
+    "fact_evaluations"
+  ],
+  "properties": {
+    "scenario_id": {
+      "type": "string"
+    },
+    "rubric_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "fact_evaluations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "fact_id",
+          "category",
+          "reason",
+          "confidence"
+        ],
+        "properties": {
+          "fact_id": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "FULL_ENGAGEMENT",
+              "PARTIAL_ENGAGEMENT",
+              "NON_ANSWER",
+              "DEFLECTION",
+              "NOT_MENTIONED",
+              "REFUSAL"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
