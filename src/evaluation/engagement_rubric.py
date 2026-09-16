@@ -7,7 +7,7 @@ engagement codebook.
 One classifier prompt evaluates one complete model response against
 all scenario facts in a single call.
 
-Rubric version: 1.0
+Rubric version: 1.1
 """
 
 from enum import Enum
@@ -15,7 +15,7 @@ from typing import Any
 import json
 
 
-RUBRIC_VERSION = "1.0"
+RUBRIC_VERSION = "1.1"
 
 
 class EngagementCategory(str, Enum):
