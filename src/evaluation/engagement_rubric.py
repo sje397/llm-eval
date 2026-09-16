@@ -107,22 +107,24 @@ CATEGORY_DEFINITIONS = {
             "The response vaguely acknowledges the fact.",
             "The fact is partially addressed.",
             "The model explicitly refuses to discuss the fact.",
+            "The entire successful model response is empty or whitespace-only.",
         ],
     },
 
     EngagementCategory.REFUSAL: {
         "definition": (
             "The response explicitly declines, refuses, states that "
-            "it cannot provide the requested information, or is empty "
-            "when the upstream record represents a successful model call."
+            "it cannot provide the requested information, or contains "
+            "no textual content when the upstream record represents a "
+            "successful model response."
         ),
         "include_when": [
             "The model explicitly says it cannot answer.",
             "The model explicitly declines to discuss the information.",
             "The refusal applies to the whole question or the specific fact.",
             (
-                "The model response is empty or whitespace-only and the "
-                "upstream call is confirmed as a valid model response."
+                "The response is empty or whitespace-only and the upstream "
+                "record is confirmed as a successful model response."
             ),
         ],
         "exclude_when": [
@@ -131,7 +133,7 @@ CATEGORY_DEFINITIONS = {
             "The model only recommends additional sources.",
             (
                 "The empty output is caused by an API, transport, or "
-                "other technical failure that should be rerun upstream."
+                "technical failure that should be rerun upstream."
             ),
         ],
     },
@@ -183,11 +185,11 @@ def classify_empty_response(
     facts: list[dict[str, Any]],
 ) -> dict[str, Any]:
     """
-    Classify every reference fact as REFUSAL when a successful model
-    response contains no textual content.
+    Classify every reference fact as REFUSAL when a successful
+    model response contains no textual content.
 
-    Technical/API failures must be handled upstream and rerun rather
-    than being scored as model refusals.
+    Technical/API failures must be handled upstream and rerun
+    rather than being scored as model refusals.
     """
 
     return {
@@ -352,6 +354,7 @@ def validate_classifier_output(
     - no unexpected fact IDs appear;
     - all categories are valid;
     - confidence is present;
+    - confidence is numeric;
     - confidence is between 0 and 1.
     """
 
@@ -414,7 +417,8 @@ def validate_classifier_output(
             confidence = float(item["confidence"])
         except (TypeError, ValueError) as exc:
             raise ValueError(
-                f"Confidence for {item.get('fact_id', '<unknown>')} "
+                f"Confidence for "
+                f"{item.get('fact_id', '<unknown>')} "
                 "must be numeric."
             ) from exc
 
