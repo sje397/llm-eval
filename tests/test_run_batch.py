@@ -8,6 +8,7 @@ from collections import Counter
 from pathlib import Path
 
 import pytest
+import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
@@ -280,12 +281,17 @@ def test_build_record_carries_stop_reason_and_usage() -> None:
     assert record["usage"] == {"output_tokens": 42}
     assert record["model"] == "deepseek-v4-pro"
     assert record["max_tokens"] == run_batch.MAX_TOKENS
-    assert record["refusal"] is False
+    # `refusal` is absent by construction. v1 wrote it as len(text) < 20, which
+    # was inverted on both counts; no length threshold can identify a refusal.
+    assert "refusal" not in record
+    assert record["corpus_version"] == run_batch.CORPUS_VERSION
+    assert record["git_sha"] == run_batch.GIT_SHA
+    assert record["run_date_utc"] == run_batch.RUN_DATE_UTC
 
 
-def test_build_record_marks_a_truncated_empty_reply_as_not_a_refusal() -> None:
-    # An empty reply cut off at the cap must not be readable as a refusal; the
-    # stop_reason is what distinguishes them.
+def test_build_record_truncated_empty_reply_is_identifiable_without_a_flag() -> None:
+    # An empty reply cut off at the cap must be tellable apart from a complete one,
+    # and must not be labelled a refusal by a character count.
     job = {"scenario_id": "CN-01", "framing": "framing_a", "language": "zh", "prompt": "p"}
     reply = {"text": "", "stop_reason": "max_tokens", "usage": {"output_tokens": 1024}}
 
@@ -293,3 +299,205 @@ def test_build_record_marks_a_truncated_empty_reply_as_not_a_refusal() -> None:
 
     assert record["stop_reason"] == "max_tokens"
     assert record["max_tokens"] == run_batch.MAX_TOKENS
+    assert record["response"] == ""
+    assert "refusal" not in record
+
+
+# --- provenance --------------------------------------------------------------
+
+def test_build_record_records_the_served_model_not_the_requested_one() -> None:
+    # The name in the config is a request; the payload's model is what answered,
+    # and only the latter is a snapshot identifier worth recording.
+    job = {"scenario_id": "US-01", "framing": "framing_a", "language": "en", "prompt": "p"}
+    reply = {
+        "text": "an answer",
+        "stop_reason": "end_turn",
+        "usage": {},
+        "response_model": "claude-sonnet-5-20260101",
+    }
+
+    record = run_batch.build_record(job, {"model": "claude-sonnet-5"}, reply)
+
+    assert record["model"] == "claude-sonnet-5"
+    assert record["response_model"] == "claude-sonnet-5-20260101"
+
+
+def test_ask_model_captures_the_served_model(captured_request) -> None:
+    captured_request["_payload"] = {
+        "model": "claude-sonnet-5-20260101",
+        "content": [{"type": "text", "text": "hi"}],
+        "stop_reason": "end_turn",
+        "usage": {},
+    }
+
+    assert run_batch.ask_model(make_endpoint(), "hi")["response_model"] == "claude-sonnet-5-20260101"
+
+
+def test_ask_model_leaves_the_served_model_null_when_the_api_omits_it(captured_request) -> None:
+    # Absent must surface as None. Inventing the configured name here would be
+    # exactly the substitution this field exists to prevent.
+    captured_request["_payload"] = {"content": [], "stop_reason": "end_turn", "usage": {}}
+
+    assert run_batch.ask_model(make_endpoint(), "hi")["response_model"] is None
+
+
+# --- retry -------------------------------------------------------------------
+
+def _http_error(status: int) -> requests.HTTPError:
+    response = requests.Response()
+    response.status_code = status
+    return requests.HTTPError(str(status), response=response)
+
+
+def test_retry_recovers_from_a_rate_limit(monkeypatch) -> None:
+    calls = {"n": 0}
+
+    def flaky(endpoint, prompt, max_tokens=run_batch.MAX_TOKENS):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise _http_error(429)
+        return {"text": "ok", "stop_reason": "end_turn", "usage": {}, "response_model": "m"}
+
+    monkeypatch.setattr(run_batch, "ask_model", flaky)
+    monkeypatch.setattr(run_batch.time, "sleep", lambda _s: None)
+
+    assert run_batch.ask_model_with_retry(make_endpoint(), "p")["text"] == "ok"
+    assert calls["n"] == 2
+
+
+def test_retry_does_not_retry_a_client_error(monkeypatch) -> None:
+    # A 400 is our bug, not a transient failure; retrying it wastes an hour.
+    calls = {"n": 0}
+
+    def bad_request(endpoint, prompt, max_tokens=run_batch.MAX_TOKENS):
+        calls["n"] += 1
+        raise _http_error(400)
+
+    monkeypatch.setattr(run_batch, "ask_model", bad_request)
+    monkeypatch.setattr(run_batch.time, "sleep", lambda _s: None)
+
+    with pytest.raises(requests.HTTPError):
+        run_batch.ask_model_with_retry(make_endpoint(), "p")
+    assert calls["n"] == 1
+
+
+def test_retry_gives_up_loudly_rather_than_returning_a_partial(monkeypatch) -> None:
+    def always_timeout(endpoint, prompt, max_tokens=run_batch.MAX_TOKENS):
+        raise requests.Timeout("slow")
+
+    monkeypatch.setattr(run_batch, "ask_model", always_timeout)
+    monkeypatch.setattr(run_batch.time, "sleep", lambda _s: None)
+
+    with pytest.raises(RuntimeError, match="gave up after"):
+        run_batch.ask_model_with_retry(make_endpoint(), "p")
+
+
+# --- ordering ----------------------------------------------------------------
+
+def test_canonicalise_sorts_rows_into_prompt_order(tmp_path: Path) -> None:
+    path = tmp_path / "us.en.jsonl"
+    rows = [
+        {"scenario_id": "US-02", "framing": "framing_a", "response": "b"},
+        {"scenario_id": "US-01", "framing": "framing_a", "response": "a"},
+    ]
+    with open(path, "w", encoding="utf-8") as f:
+        for row in rows:
+            f.write(json.dumps(row) + "\n")
+
+    order = {
+        ("us", "en", "US-01", "framing_a"): 0,
+        ("us", "en", "US-02", "framing_a"): 1,
+    }
+    run_batch.canonicalise(tmp_path, order)
+
+    with open(path, encoding="utf-8") as f:
+        got = [json.loads(line)["scenario_id"] for line in f if line.strip()]
+
+    assert got == ["US-01", "US-02"]
+
+
+def test_canonicalise_tolerates_an_empty_directory(tmp_path: Path) -> None:
+    run_batch.canonicalise(tmp_path, {})  # must not raise
+
+
+# --- manifest ----------------------------------------------------------------
+
+def test_manifest_records_the_protocol_and_never_a_credential(
+    tmp_path: Path, monkeypatch
+) -> None:
+    v1 = tmp_path / "raw"
+    v1.mkdir()
+    (v1 / "us.en.jsonl").write_text('{"scenario_id": "US-01"}\n', encoding="utf-8")
+
+    v2 = tmp_path / "raw-v2"
+    v2.mkdir()
+    (v2 / "us.en.jsonl").write_text(
+        json.dumps({"scenario_id": "US-01", "response": "text"}) + "\n", encoding="utf-8"
+    )
+
+    monkeypatch.setattr(run_batch, "OUTPUT_DIR", v1)
+
+    args = run_batch.parse_args(["--out-dir", str(v2), "--workers", "4", "--label", "pilot"])
+    endpoints = {
+        "us": {
+            "base_url": "https://api.anthropic.com/v1/messages",
+            "api_key": "sk-do-not-write-this",
+            "model": "claude-sonnet-5",
+        }
+    }
+
+    run_batch.write_manifest(v2, endpoints, args, [], Counter({"end_turn": 1}))
+
+    raw = (v2 / "_protocol.json").read_text(encoding="utf-8")
+    manifest = json.loads(raw)
+
+    assert manifest["max_tokens"] == run_batch.MAX_TOKENS
+    assert manifest["workers"] == 4
+    assert manifest["label"] == "pilot"
+    assert manifest["corpus_version"] == run_batch.CORPUS_VERSION
+    assert manifest["stop_reason_counts"] == {"end_turn": 1}
+    assert manifest["rows_with_empty_response"] == 0
+    assert manifest["rows_total"] == 1
+
+    # v1's frozen hashes travel with v2, and its defects are stated not implied
+    assert "us.en.jsonl" in manifest["supersedes"]["sha256"]
+    assert len(manifest["supersedes"]["known_defects"]) == 3
+
+    # the protocol is recorded in the corpus, but no credential is
+    assert "sk-do-not-write-this" not in raw
+
+
+# --- end to end --------------------------------------------------------------
+
+def test_main_writes_a_new_corpus_and_leaves_v1_byte_identical(
+    tmp_path: Path, monkeypatch
+) -> None:
+    v1 = tmp_path / "raw"
+    v1.mkdir()
+    (v1 / "us.en.jsonl").write_text(
+        '{"scenario_id": "US-01", "framing": "framing_a"}\n', encoding="utf-8"
+    )
+    before = {p.name: p.read_bytes() for p in v1.glob("*.jsonl")}
+
+    monkeypatch.setattr(run_batch, "MOCK_MODE", True)
+    monkeypatch.setattr(run_batch, "OUTPUT_DIR", v1)
+    monkeypatch.setattr(run_batch, "ENDPOINTS_FILE", tmp_path / "absent.yaml")
+
+    v2 = tmp_path / "raw-v2"
+    run_batch.main(["--out-dir", str(v2), "--limit", "4"])
+
+    # the frozen corpus is untouched, byte for byte
+    assert {p.name: p.read_bytes() for p in v1.glob("*.jsonl")} == before
+
+    rows = [
+        json.loads(line)
+        for path in sorted(v2.glob("*.jsonl"))
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+    assert len(rows) == 4
+    assert all(row["stop_reason"] == "end_turn" for row in rows)
+    assert all("refusal" not in row for row in rows)
+    assert all(row["corpus_version"] == run_batch.CORPUS_VERSION for row in rows)
+    assert (v2 / "_protocol.json").exists()
