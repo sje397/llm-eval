@@ -11,7 +11,13 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from run_batch import build_all_prompts, load_finished_prompts, render_prompt
+import run_batch
+from run_batch import (
+    build_all_prompts,
+    load_finished_prompts,
+    render_prompt,
+    validate_stop_reason,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCENARIOS_FILE = REPO_ROOT / "data" / "scenarios.json"
@@ -127,3 +133,163 @@ def test_load_finished_prompts_reads_existing_rows(tmp_path: Path) -> None:
 
 def test_load_finished_prompts_returns_empty_set_for_missing_file(tmp_path: Path) -> None:
     assert load_finished_prompts(tmp_path / "missing.jsonl") == set()
+
+
+# --- validate_stop_reason ----------------------------------------------------
+
+def test_validate_stop_reason_accepts_known_values() -> None:
+    for value in ("end_turn", "max_tokens", "stop_sequence", "tool_use", "refusal"):
+        assert validate_stop_reason(value) == value
+
+
+def test_validate_stop_reason_rejects_unknown_value() -> None:
+    # A provider renaming or adding a stop reason must fail loudly, not be stored.
+    with pytest.raises(ValueError, match="Unexpected stop_reason"):
+        validate_stop_reason("content_filter")
+
+
+def test_validate_stop_reason_rejects_none() -> None:
+    # A response with no stop_reason at all is not the same as a normal one.
+    with pytest.raises(ValueError, match="Unexpected stop_reason"):
+        validate_stop_reason(None)
+
+
+# --- ask_model ---------------------------------------------------------------
+
+def make_endpoint() -> dict:
+    return {"base_url": "https://example.invalid/v1/messages", "api_key": "k", "model": "m"}
+
+
+@pytest.fixture
+def captured_request(monkeypatch):
+    """Stub requests.post, capturing the request body and returning a set payload."""
+    box: dict = {}
+
+    class FakeResponse:
+        def __init__(self, payload: dict) -> None:
+            self._payload = payload
+
+        def raise_for_status(self) -> None:
+            pass
+
+        def json(self) -> dict:
+            return self._payload
+
+    def fake_post(url, headers=None, json=None, timeout=None):  # noqa: A002
+        box["url"] = url
+        box["body"] = json
+        box["timeout"] = timeout
+        return FakeResponse(box["_payload"])
+
+    monkeypatch.setattr(run_batch.requests, "post", fake_post)
+    monkeypatch.setattr(run_batch, "MOCK_MODE", False)
+    return box
+
+
+def test_ask_model_returns_text_and_stop_reason(captured_request) -> None:
+    captured_request["_payload"] = {
+        "content": [{"type": "text", "text": "hello"}],
+        "stop_reason": "end_turn",
+        "usage": {"output_tokens": 3},
+    }
+
+    reply = run_batch.ask_model(make_endpoint(), "hi")
+
+    assert reply["text"] == "hello"
+    assert reply["stop_reason"] == "end_turn"
+    assert reply["usage"] == {"output_tokens": 3}
+
+
+def test_ask_model_joins_all_text_blocks(captured_request) -> None:
+    # A reply can interleave text and thinking; keeping only the first text block
+    # silently drops the rest.
+    captured_request["_payload"] = {
+        "content": [
+            {"type": "text", "text": "part one. "},
+            {"type": "thinking", "thinking": "secret"},
+            {"type": "text", "text": "part two."},
+        ],
+        "stop_reason": "end_turn",
+        "usage": {},
+    }
+
+    reply = run_batch.ask_model(make_endpoint(), "hi")
+
+    assert reply["text"] == "part one. part two."
+
+
+def test_ask_model_reports_cap_hit_with_no_text(captured_request) -> None:
+    # The exact production failure: a thinking block eats the whole budget, the
+    # provider returns no text block, and the old code stored "" with no reason.
+    captured_request["_payload"] = {
+        "content": [{"type": "thinking", "thinking": ""}],
+        "stop_reason": "max_tokens",
+        "usage": {"output_tokens": 1024},
+    }
+
+    reply = run_batch.ask_model(make_endpoint(), "hi")
+
+    assert reply["text"] == ""
+    assert reply["stop_reason"] == "max_tokens"
+
+
+def test_ask_model_sends_requested_max_tokens(captured_request) -> None:
+    captured_request["_payload"] = {
+        "content": [{"type": "text", "text": "x"}],
+        "stop_reason": "end_turn",
+        "usage": {},
+    }
+
+    run_batch.ask_model(make_endpoint(), "hi", max_tokens=2048)
+
+    assert captured_request["body"]["max_tokens"] == 2048
+
+
+def test_default_max_tokens_is_above_the_cap_that_truncated_the_corpus(captured_request) -> None:
+    captured_request["_payload"] = {
+        "content": [{"type": "text", "text": "x"}],
+        "stop_reason": "end_turn",
+        "usage": {},
+    }
+
+    run_batch.ask_model(make_endpoint(), "hi")
+
+    assert captured_request["body"]["max_tokens"] == run_batch.MAX_TOKENS
+    assert run_batch.MAX_TOKENS > 1024
+
+
+# --- build_record ------------------------------------------------------------
+
+def test_build_record_carries_stop_reason_and_usage() -> None:
+    job = {
+        "scenario_id": "CN-01",
+        "framing": "framing_a",
+        "language": "zh",
+        "prompt": "p",
+    }
+    endpoint = {"model": "deepseek-v4-pro"}
+    reply = {
+        "text": "some answer that is comfortably longer than twenty characters",
+        "stop_reason": "end_turn",
+        "usage": {"output_tokens": 42},
+    }
+
+    record = run_batch.build_record(job, endpoint, reply)
+
+    assert record["stop_reason"] == "end_turn"
+    assert record["usage"] == {"output_tokens": 42}
+    assert record["model"] == "deepseek-v4-pro"
+    assert record["max_tokens"] == run_batch.MAX_TOKENS
+    assert record["refusal"] is False
+
+
+def test_build_record_marks_a_truncated_empty_reply_as_not_a_refusal() -> None:
+    # An empty reply cut off at the cap must not be readable as a refusal; the
+    # stop_reason is what distinguishes them.
+    job = {"scenario_id": "CN-01", "framing": "framing_a", "language": "zh", "prompt": "p"}
+    reply = {"text": "", "stop_reason": "max_tokens", "usage": {"output_tokens": 1024}}
+
+    record = run_batch.build_record(job, {"model": "deepseek-v4-pro"}, reply)
+
+    assert record["stop_reason"] == "max_tokens"
+    assert record["max_tokens"] == run_batch.MAX_TOKENS
