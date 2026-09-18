@@ -35,7 +35,11 @@
   "rows_with_empty_response": 0,
   "failures": [],
   "supersedes": {
-    "dir": "data/raw",
+    "corpus": "v1",
+    "replaced_in_place": true,
+    "replaced_on_utc": "2026-09-18",
+    "retrievable_at_commit": "68ad1715d83b80624281e82562ee30853e43bfea",
+    "note": "v1's bytes remain reachable in git at the commit above (git show <sha>:data/raw/cn.zh.jsonl). This corpus replaced them inside data/raw rather than sitting beside them in a second directory.",
     "sha256": {
       "cn.en.jsonl": "88841ea6b0a1852bc232340e7e32f9a4a7f6f09fac0ea5d9ce09d8f9c090a5bb",
       "cn.zh.jsonl": "4ccf9587bd3a5d2bc06e56044b03abdc04d48438d7a78bce5988fca8b49d724c",

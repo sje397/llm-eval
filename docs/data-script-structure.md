@@ -141,8 +141,10 @@ stages.
 - **Python 3.12+**; scripts run from the repo root (`cd ~/repo/llm-eval`).
 - Install deps: `pip install -r scripts/requirements.txt` (openai, pyyaml, pandas).
 - Each script prints a summary and writes its output file; it's safe to re-run.
-- **Never** commit: `.env`, `local-notes.md`, `data/raw/`, API keys, or any
-  generated output that costs money to reproduce.
+- **Never** commit: `.env`, `config/endpoints.yaml`, `local-notes.md`, API keys.
+- **Do** commit `data/raw/*.jsonl`. The corpus is the study's primary artifact, it
+  cannot be regenerated without spending money, and its hashes are the evidence
+  behind the provenance claims in [corpus-provenance.md](corpus-provenance.md).
 - **Mock mode:** set `MOCK_MODE=true` to run against fake responses during
   development so no real endpoint is called.
 

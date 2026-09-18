@@ -5,16 +5,20 @@ known to be wrong with it. Written because the v1 corpus has three defects that 
 invisible in the data itself, and because a reader of a results table cannot tell
 which collection protocol produced the rows behind it.
 
-**Rule: a frozen corpus is never edited.** When a collection turns out to be
-flawed, the response is to collect a new version and say so, not to repair the
-bytes. The original is the only surviving evidence that the flaw existed, and its
-hashes are recorded below so that "byte-identical" is a checkable claim rather
-than an assurance.
+**Rule: a flawed collection is never silently repaired.** When a collection turns
+out to be flawed, the response is to collect a fresh corpus and record the
+supersession — hashes, defects, and the commit that still holds the original —
+rather than to edit the bytes in place and say nothing. The original is the only
+surviving evidence that the flaw existed.
 
-| | v1 | v2 |
+`data/raw/` holds **one** corpus: the current one. Superseded versions are not kept
+beside it as second directories; git holds them and this document names where, so
+that "byte-identical" stays a checkable claim rather than an assurance.
+
+| | v1 | v2 (current) |
 |---|---|---|
-| directory | `data/raw/` | `data/raw-v2/` |
-| commit | `68ad171` (2026-09-07) | see `data/raw-v2/_protocol.json` |
+| directory | `data/raw/` | `data/raw/` — replaced v1 in place, 2026-09-18 |
+| bytes retrievable at | `68ad171` (2026-09-07) | current `HEAD` |
 | `max_tokens` | 1024 | 8192 |
 | rows | 1,200 (300 per file) | 1,200 (300 per file) |
 | `stop_reason` | absent | recorded per row |
@@ -25,11 +29,27 @@ than an assurance.
 Files are one per model arm and language: `{us,cn}.{en,zh}.jsonl`, where `us` is
 `claude-sonnet-5` and `cn` is `deepseek-v4-pro`.
 
-## v1 — `data/raw/`, frozen
 
-Collected at `max_tokens=1024` and committed in `68ad171`. The collection date
-itself is **not recorded anywhere in the corpus**, which is one of the reasons v2
-stamps provenance onto every row.
+## Replacement record
+
+|  |  |
+|---|---|
+| replaced | 2026-09-18 |
+| what | v1's four files replaced by v2's four files, same names, inside `data/raw/` |
+| verified | all four sha256 match the collected v2 corpus byte for byte |
+| v1 retrievable at | `68ad171` — e.g. `git show 68ad171:data/raw/cn.zh.jsonl` |
+| v1 defects | three, below, and restated in `data/raw/_protocol.json` |
+
+Keeping one corpus in the tree is a deliberate choice, not an accident of tidiness:
+two directories meant the pipeline documentation named one while the analysis read
+the other. The trade is that v1's survival now depends on git rather than on the
+working tree, which is why its hashes and its retrieval commit are recorded here.
+
+## v1 — superseded, held by git at `68ad171`
+
+Collected at `max_tokens=1024` and committed in `68ad171`, which is where these bytes
+still live. The collection date itself is **not recorded anywhere in the corpus**,
+which is one of the reasons v2 stamps provenance onto every row.
 
 Hashes (sha256, so a re-collection can prove it did not touch these):
 
@@ -120,11 +140,11 @@ none. Counting silent truncations as well, roughly 177 of 600 `cn` rows (29.5%) 
 with the live probe recorded on #20, which measured 23% of DeepSeek calls ending at
 `max_tokens`.
 
-## v2 — `data/raw-v2/`
+## v2 — current corpus, `data/raw/`
 
 Collected at `max_tokens=8192` with the same prompts, scenarios and model arms as
 v1, in the same canonical order. The only intended difference is the cap and the
-instrumentation; the protocol is recorded in `data/raw-v2/_protocol.json` so that
+instrumentation; the protocol is recorded in `data/raw/_protocol.json` so that
 the change is a stated finding rather than something a reader has to infer from
 differing token counts.
 
@@ -183,23 +203,28 @@ collection still lands in canonical order.
 
 The collector skips any `(scenario_id, framing)` already present in the target
 directory, so an interrupted run resumes by re-invoking it with the same
-`--out-dir`. Always pass `--out-dir` explicitly; the default is `data/raw`, which
-is frozen.
+`--out-dir`. Always pass `--out-dir` explicitly: the default is `data/raw`, the live
+corpus, and a re-collection under a different protocol belongs in a directory of its
+own.
 
 ```bash
-.venv-llm/bin/python scripts/run_batch.py --out-dir data/raw-v2 --workers 4
+.venv-llm/bin/python scripts/run_batch.py --out-dir <new-dir> --workers 4
 ```
 
 ## Verifying these claims
 
 ```bash
-# v1 is untouched
+# the live corpus, byte for byte
 shasum -a 256 data/raw/*.jsonl
+
+# v1 is unchanged and still retrievable from history
+git show 68ad171:data/raw/cn.zh.jsonl | shasum -a 256
+#   → 4ccf9587bd3a5d2bc06e56044b03abdc04d48438d7a78bce5988fca8b49d724c
 
 # no row is empty and none hit the cap
 python3 - <<'PY'
 import json, glob, collections
-rows = [json.loads(l) for f in glob.glob("data/raw-v2/*.jsonl")
+rows = [json.loads(l) for f in glob.glob("data/raw/*.jsonl")
         for l in open(f, encoding="utf-8") if l.strip()]
 print("rows:", len(rows))
 print("empty:", sum(1 for r in rows if not r["response"].strip()))
