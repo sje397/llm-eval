@@ -7,11 +7,15 @@ Batch runner for LLMEV-100.
 3. Call the US or CN model for each prompt
 4. Save results to data/raw/*.jsonl
 
-Dev (no API keys):
-    MOCK_MODE=true python scripts/run_batch.py
+Dev (no API keys) — always name a throwaway output directory:
+    MOCK_MODE=true python scripts/run_batch.py --out-dir data/raw-demo
 
 Production:
-    python scripts/run_batch.py
+    python scripts/run_batch.py --out-dir <new-dir> --workers 4
+
+Pass --out-dir explicitly. It defaults to data/raw, which is the live corpus, and
+collection resumes rather than overwrites — so a run without it can fill missing
+slots with mock text without raising anything.
 
 See docs/running-scripts.md for full details.
 """

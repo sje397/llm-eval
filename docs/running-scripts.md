@@ -43,10 +43,14 @@ Create `config/endpoints.yaml` with real keys, then run:
 .venv-llm/bin/python scripts/run_batch.py --out-dir <new-dir> --workers 4
 ```
 
-A re-collection belongs in a **new** directory: it is a different protocol, and
-keeping it separate is what lets the report state the change rather than hide it.
-Re-running into the same directory skips rows already on disk, so an interrupted
-collection resumes where it stopped.
+A re-collection is a **different protocol**, and it must never be merged into an
+existing corpus silently. Two ways satisfy that, and both have been used here:
+collect into a new directory and keep both, or **supersede in place and let git hold
+the old corpus** — which is what was done for v2, with v1 preserved at the commit
+recorded in [corpus-provenance.md](corpus-provenance.md) together with its four
+hashes. What is not acceptable is overwriting rows in place with no record that the
+protocol changed. Re-running into the same directory skips rows already on disk, so an
+interrupted collection resumes where it stopped.
 
 Example `config/endpoints.yaml`:
 
