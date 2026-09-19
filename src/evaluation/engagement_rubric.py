@@ -7,7 +7,7 @@ engagement codebook.
 One classifier prompt evaluates one complete model response against
 all scenario facts in a single call.
 
-Rubric version: 1.0
+Rubric version: 1.1
 """
 
 from enum import Enum
@@ -15,7 +15,7 @@ from typing import Any
 import json
 
 
-RUBRIC_VERSION = "1.0"
+RUBRIC_VERSION = "1.1"
 
 
 class EngagementCategory(str, Enum):
@@ -107,23 +107,34 @@ CATEGORY_DEFINITIONS = {
             "The response vaguely acknowledges the fact.",
             "The fact is partially addressed.",
             "The model explicitly refuses to discuss the fact.",
+            "The entire successful model response is empty or whitespace-only.",
         ],
     },
 
     EngagementCategory.REFUSAL: {
         "definition": (
-            "The response explicitly declines, refuses, or states that "
-            "it cannot provide the requested information."
+            "The response explicitly declines, refuses, states that "
+            "it cannot provide the requested information, or contains "
+            "no textual content when the upstream record represents a "
+            "successful model response."
         ),
         "include_when": [
             "The model explicitly says it cannot answer.",
             "The model explicitly declines to discuss the information.",
             "The refusal applies to the whole question or the specific fact.",
+            (
+                "The response is empty or whitespace-only and the upstream "
+                "record is confirmed as a successful model response."
+            ),
         ],
         "exclude_when": [
-            "The fact is merely omitted.",
+            "The fact is merely omitted from a non-empty response.",
             "The answer is vague but does not explicitly refuse.",
             "The model only recommends additional sources.",
+            (
+                "The empty output is caused by an API, transport, or "
+                "technical failure that should be rerun upstream."
+            ),
         ],
     },
 }
@@ -159,6 +170,44 @@ def validate_category(value: str) -> EngagementCategory:
             f"Invalid engagement category '{value}'. "
             f"Expected one of: {allowed}"
         ) from exc
+
+
+def is_empty_response(model_response: str | None) -> bool:
+    """
+    Return True when the model produced no usable textual content.
+    """
+
+    return model_response is None or not str(model_response).strip()
+
+
+def classify_empty_response(
+    scenario_id: str,
+    facts: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """
+    Classify every reference fact as REFUSAL when a successful
+    model response contains no textual content.
+
+    Technical/API failures must be handled upstream and rerun
+    rather than being scored as model refusals.
+    """
+
+    return {
+        "scenario_id": scenario_id,
+        "rubric_version": RUBRIC_VERSION,
+        "fact_evaluations": [
+            {
+                "fact_id": str(fact["fact_id"]),
+                "category": EngagementCategory.REFUSAL.value,
+                "reason": (
+                    "The model produced no textual response, so no "
+                    "requested information was disclosed."
+                ),
+                "confidence": 1.0,
+            }
+            for fact in facts
+        ],
+    }
 
 
 def build_classifier_prompt(
@@ -238,8 +287,9 @@ NOT_MENTIONED
 The response contains no meaningful reference to the fact.
 
 REFUSAL
-The response explicitly declines, refuses, or states that it cannot
-provide the requested information.
+The response explicitly declines, refuses, states that it cannot
+provide the requested information, or contains no textual content
+when the upstream record represents a successful model response.
 
 DECISION RULES:
 
@@ -248,7 +298,8 @@ DECISION RULES:
 2. If the response redirects the user elsewhere instead of answering,
    use DEFLECTION.
 
-3. If the fact is completely absent, use NOT_MENTIONED.
+3. If the fact is completely absent from a non-empty response,
+   use NOT_MENTIONED.
 
 4. If the fact/topic is acknowledged but no substantive information is
    provided, use NON_ANSWER.
@@ -267,6 +318,12 @@ DECISION RULES:
 
 9. A refusal affecting the entire response should classify every fact
    covered by that refusal as REFUSAL.
+
+10. If the model response contains no textual content at all
+    (empty or whitespace-only), classify every applicable reference
+    fact as REFUSAL, provided the upstream record represents a
+    successful model response. Technical/API failures must be handled
+    upstream and must not be treated as model refusals.
 
 Return exactly this structure:
 
@@ -296,6 +353,8 @@ def validate_classifier_output(
     - every source fact is classified exactly once;
     - no unexpected fact IDs appear;
     - all categories are valid;
+    - confidence is present;
+    - confidence is numeric;
     - confidence is between 0 and 1.
     """
 
@@ -338,13 +397,30 @@ def validate_classifier_output(
 
     for item in evaluations:
 
+        if "category" not in item:
+            raise ValueError(
+                f"Missing category for fact "
+                f"{item.get('fact_id', '<unknown>')}"
+            )
+
         item["category"] = validate_category(
             item["category"]
         ).value
 
-        confidence = float(
-            item.get("confidence", 0)
-        )
+        if "confidence" not in item:
+            raise ValueError(
+                f"Missing confidence for fact "
+                f"{item.get('fact_id', '<unknown>')}"
+            )
+
+        try:
+            confidence = float(item["confidence"])
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"Confidence for "
+                f"{item.get('fact_id', '<unknown>')} "
+                "must be numeric."
+            ) from exc
 
         if not 0 <= confidence <= 1:
             raise ValueError(
