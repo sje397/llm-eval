@@ -9,6 +9,7 @@ import time
 from datetime import timedelta
 import csv
 
+from omlx_auth import OmlxAuthError, raise_if_unauthorized, resolve_api_key
 
 
 class ExecutionTimer:
@@ -78,7 +79,7 @@ def query_model(prompt, judge_model):
     config = load_config()
     onix_url = f"http://{config['onix']['host']}:{config['onix']['port']}"
     max_tokens = config["onix"]["max_tokens"]
-    api_key = config["onix"]["api_key"]
+    api_key = resolve_api_key(config)
     timeout = config["onix"]["timeout"]
 
     try:
@@ -97,10 +98,11 @@ def query_model(prompt, judge_model):
             },
             timeout=timeout
         )
+        raise_if_unauthorized(llm_response.status_code)
         llm_response.raise_for_status()
         response = llm_response.json()
     except requests.exceptions.RequestException as e:
-        raise requests.RequestException(f"Extract failed: {e}")
+        raise requests.RequestException(f"Judge request failed: {e}")
 
     # Parse the LLM response content
     return response.get("content", [])[0].get("text", "")
@@ -161,6 +163,8 @@ RESPONSE:\n\
             print(f'Expected output to be 1, 2, 3, 4, 5 or 6, but got {output}. Setting to 7.')
             output = 7
         return output
+    except OmlxAuthError:
+        raise  # a missing or rejected key is not a malformed category
     except Exception as e:
         print(f'Expected output to be 1, 2, 3, 4, 5 or 6, but got {output}. Setting to 7.')
         return 7
@@ -212,6 +216,8 @@ RESPONSE:\n\
             print(f'Expected output to be 1, 2, or 3, but got {output}. Setting to 4.')
             output = 4
         return output
+    except OmlxAuthError:
+        raise  # a missing or rejected key is not a malformed category
     except Exception as e:
         print(f'Expected output to be 1, 2, or 3, but got {output}. Setting to 4.')
         return 4

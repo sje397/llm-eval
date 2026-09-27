@@ -98,3 +98,5 @@ OMLX_URL=http://localhost:21434
 | `Connection closed by ... port 22` (with a valid key) | The `llm-eval` account isn't in the `com.apple.access_ssh` group. Flag it to Scott/lex. |
 | `Connection refused` on 21434 | The tunnel isn't up, or oMLX isn't running. Confirm the `ssh` terminal is still open. |
 | Port 21434 already in use locally | Use a different local port, e.g. `-L 21435:127.0.0.1:21434`, and set `OMLX_URL=http://localhost:21435`. |
+
+| `401 {"error":{"message":"Invalid API key"}}` on 21434 | The tunnel is fine; oMLX rejected the key. Set `OMLX_API_KEY`, or fix `onix.api_key` in `scripts/indexing_config.json`. See [running-scripts.md](running-scripts.md). |

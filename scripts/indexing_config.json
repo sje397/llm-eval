@@ -7,7 +7,7 @@
   "onix": {
     "host": "localhost",
     "port": 21434,
-    "api_key": "llm-api-key",
+    "api_key": "lmm-api-key",
     "max_tokens": 32768,
     "timeout": 600
   }
