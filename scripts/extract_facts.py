@@ -7,6 +7,8 @@ import argparse
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
+from omlx_auth import raise_if_unauthorized, resolve_api_key
+
 # Load configuration
 CONFIG_FILE = Path(__file__).parent / "indexing_config.json"
 DEFAULT_CONFIG = {
@@ -113,7 +115,7 @@ def extract_facts(
     config = load_config()
     onix_url = f"http://{config['onix']['host']}:{config['onix']['port']}"
     max_tokens = config["onix"]["max_tokens"]
-    api_key = config["onix"]["api_key"]
+    api_key = resolve_api_key(config)
     timeout = config["onix"]["timeout"]
     prompt_extract = build_extract_prompt(topic, time_period, article)
 
@@ -134,6 +136,7 @@ def extract_facts(
             },
             timeout=timeout
         )
+        raise_if_unauthorized(llm_response.status_code)
         llm_response.raise_for_status()
         fact_data = llm_response.json()
     except requests.exceptions.RequestException as e:
@@ -171,6 +174,7 @@ def extract_facts(
                 },
                 timeout=timeout
             )
+            raise_if_unauthorized(translate_response.status_code)
             translate_response.raise_for_status()
             translate_data = translate_response.json()
         except requests.exceptions.RequestException as e:

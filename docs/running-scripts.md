@@ -10,6 +10,42 @@ See also: [data-script-structure.md](data-script-structure.md) for architecture 
 pip install -r scripts/requirements.txt
 ```
 
+
+## oMLX authentication
+
+`judge_pipeline.py` and `extract_facts.py` call oMLX, which **requires an API key**
+(0.7 and later). It is resolved in one place, `scripts/omlx_auth.py`:
+
+1. `OMLX_API_KEY` from the environment, if set — use this to override without
+   editing a tracked file;
+2. otherwise `onix.api_key` in `scripts/indexing_config.json`.
+
+```bash
+OMLX_API_KEY=<key> python scripts/judge_pipeline.py --help
+```
+
+Send the key as `x-api-key` or `Authorization: Bearer`. The older `api-key`
+header is **rejected even when the key itself is valid**, and `/health` is the
+only endpoint that stays open. Both facts were measured against the running
+gateway.
+
+A wrong or missing key reports what to do rather than a bare `401`:
+
+| Symptom | Cause |
+|---|---|
+| `OmlxAuthError: oMLX refused the API key (401)` | What we sent doesn't match the server's key. Check `OMLX_API_KEY`, then `onix.api_key`. |
+| `OmlxAuthError: No oMLX API key` | Neither source supplied one. |
+| A valid key still 401s | Being sent under the legacy `api-key` header. |
+
+```bash
+pytest tests/test_omlx_auth.py -v
+```
+
+That covers the resolution order and the header that reaches the wire. When
+oMLX is reachable it also checks the configured key is one the server actually
+accepts — the only check that can catch a rotation, since no unit test can know
+the server's key.
+
 ## `scripts/run_batch.py`
 
 Reads `data/scenarios.json`, expands to 1,200 prompts, calls both models, writes `data/raw/*.jsonl`.
