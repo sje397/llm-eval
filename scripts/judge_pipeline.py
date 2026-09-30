@@ -480,7 +480,7 @@ Examples:
         data = judge_pipeline(
             args.lang,
             facts,
-            responses,
+            responses[:],
             args.fact_limit,
             args.judge_model,
             args.output_csv_path
