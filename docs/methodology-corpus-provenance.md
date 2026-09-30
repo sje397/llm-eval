@@ -6,8 +6,8 @@ the replacement record, and the defects restated — is in
 
 ## Summary
 
-The 1,200-response evaluation corpus was re-collected once, on 2026-09-18, and the
-corrected collection replaced the original in place. Every result reported here is
+The 1,200-response evaluation corpus was re-collected once, on 2026-09-17, and the
+corrected collection replaced the original in place on 2026-09-18. Every result reported here is
 computed on the corrected corpus. The original is preserved in git at commit
 `68ad171` and is no longer read by any stage of the pipeline.
 
