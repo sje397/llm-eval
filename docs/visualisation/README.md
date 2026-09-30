@@ -66,16 +66,16 @@ python scripts/nonresponse_metrics.py
 Reads `data/raw/*.jsonl` only - no judge output, no network. Prints four tables and
 writes them as CSV to `data/analysis/` (generated, not committed).
 
-**The numbers in this file describe the v2 corpus** (`data/raw` on
-`feat/v2-corpus-recollection`), which is the corpus the plan's figures are drawn from.
+**The numbers in this file describe the v2 corpus** (`data/raw` on `main`, which has held v2 since PR #21), which is the corpus the plan's figures are drawn from.
 The script prints the corpus version it read and refuses a file that mixes two versions,
 because a blend of two collection protocols still produces plausible-looking rates.
 
 It will not run against v1 at all: those rows carry no `corpus_version` field, so on a
 v1 checkout it stops with `missing field 'corpus_version'` rather than reporting numbers
 that would not match the figures below. That is deliberate - v1's non-response count is
-different (216 rather than 212) and it has 84 empty rows. Run it against
-`feat/v2-corpus-recollection`.
+different (216 rather than 212) and it has 84 empty rows. Run it on
+`main`. v1's bytes remain reachable at commit `68ad171`, and the superseded hashes are
+recorded in `data/raw/_protocol.json`.
 
 ### Verified against the plan
 
