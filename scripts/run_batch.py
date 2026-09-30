@@ -35,6 +35,35 @@ OUTPUT_DIR = REPO_ROOT / "data" / "raw"
 
 MOCK_MODE = os.environ.get("MOCK_MODE", "").lower() == "true"
 
+# Output-token budget per request.
+#
+# This was 1024, which is too small for these prompts and silently damaged the
+# corpus: measured on 2026-09-17 by re-running the corpus's own prompts at the
+# original settings, 23% of DeepSeek calls and ~2-3% of Claude calls hit the cap,
+# and 14% of the stored DeepSeek rows contain no text at all because a hidden
+# thinking block consumed the entire budget before any answer was emitted.
+# Both providers put thinking tokens inside this budget; ask_model can only see
+# the text block, so a cap hit leaves a truncated reply and no trace of why.
+# 8192 leaves enough headroom that stop_reason == "end_turn" is the norm.
+MAX_TOKENS = 8192
+
+# 120s was too tight once max_tokens grew: a request that thinks for thousands of
+# tokens before answering can exceed it.
+REQUEST_TIMEOUT = 600
+
+# stop_reason values the Anthropic-compatible APIs may return. Anything else is a
+# vendor change we have not accounted for, and is raised rather than recorded.
+STOP_REASONS = frozenset(
+    {
+        "end_turn",      # model finished its reply normally
+        "max_tokens",    # reply was cut off at max_tokens -- data is incomplete
+        "stop_sequence",
+        "tool_use",
+        "pause_turn",
+        "refusal",
+    }
+)
+
 MOCK_ENDPOINTS = {
     "us": {
         "base_url": "https://api.anthropic.com/v1/messages",
@@ -113,10 +142,37 @@ def output_file(model_name: str, language: str) -> Path:
 # --- api ---------------------------------------------------------------------
 
 
-def ask_model(endpoint: dict, prompt: str) -> str:
-    """Send one prompt to an Anthropic-compatible API and return the text reply."""
+def validate_stop_reason(stop_reason: str) -> str:
+    """
+    Return stop_reason if the API reported a value we understand, else raise.
+
+    Recording an unrecognised value as though it were ordinary would let a vendor
+    change pass unnoticed; failing here instead makes it a build-time problem.
+    """
+    if stop_reason not in STOP_REASONS:
+        raise ValueError(
+            f"Unexpected stop_reason {stop_reason!r} from API. "
+            f"Known values: {sorted(STOP_REASONS)}. "
+            "Check the provider's docs before trusting this batch."
+        )
+    return stop_reason
+
+
+def ask_model(endpoint: dict, prompt: str, max_tokens: int = MAX_TOKENS) -> dict:
+    """
+    Send one prompt to an Anthropic-compatible API.
+
+    Returns {"text", "stop_reason", "usage"}. text is empty when the model emitted
+    no text block -- which happens when a thinking block consumed the whole budget,
+    so the caller must read stop_reason rather than infer anything from an empty
+    string. All text blocks are joined: a reply can interleave text and thinking.
+    """
     if MOCK_MODE:
-        return f"[MOCK {endpoint['model']}] Response to: {prompt[:60]}..."
+        return {
+            "text": f"[MOCK {endpoint['model']}] Response to: {prompt[:60]}...",
+            "stop_reason": "end_turn",
+            "usage": {},
+        }
 
     response = requests.post(
         endpoint["base_url"],
@@ -127,18 +183,23 @@ def ask_model(endpoint: dict, prompt: str) -> str:
         },
         json={
             "model": endpoint["model"],
-            "max_tokens": 1024,
+            "max_tokens": max_tokens,
             "messages": [{"role": "user", "content": prompt}],
         },
-        timeout=120,
+        timeout=REQUEST_TIMEOUT,
     )
     response.raise_for_status()
+    payload = response.json()
 
-    for block in response.json().get("content", []):
-        if block.get("type") == "text":
-            return block["text"]
+    text = "".join(
+        block["text"] for block in payload.get("content", []) if block.get("type") == "text"
+    )
 
-    return ""
+    return {
+        "text": text,
+        "stop_reason": validate_stop_reason(payload.get("stop_reason")),
+        "usage": payload.get("usage", {}),
+    }
 
 
 # --- output ------------------------------------------------------------------
@@ -163,6 +224,33 @@ def save_result(file_path: Path, record: dict) -> None:
     file_path.parent.mkdir(parents=True, exist_ok=True)
     with open(file_path, "a", encoding="utf-8") as f:
         f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+
+def build_record(
+    job: dict, endpoint: dict, reply: dict, max_tokens: int = MAX_TOKENS
+) -> dict:
+    """
+    Assemble one output row.
+
+    stop_reason and usage travel with the response so a row can be checked later:
+    stop_reason == "max_tokens" means the reply is incomplete, and for Claude
+    usage.output_tokens_details.thinking_tokens shows how much of the budget was
+    spent reasoning rather than answering.
+    """
+    text = reply["text"]
+
+    return {
+        "scenario_id": job["scenario_id"],
+        "framing": job["framing"],
+        "language": job["language"],
+        "model": endpoint["model"],
+        "prompt": job["prompt"],
+        "response": text,
+        "stop_reason": reply["stop_reason"],
+        "usage": reply["usage"],
+        "max_tokens": max_tokens,
+        "refusal": len(text.strip()) < 20,
+    }
 
 
 # --- main --------------------------------------------------------------------
@@ -194,20 +282,24 @@ def main() -> None:
             continue
 
         endpoint = endpoints[job["model_name"]]
-        model_response = ask_model(endpoint, job["prompt"])
+        reply = ask_model(endpoint, job["prompt"])
 
-        save_result(
-            result_file,
-            {
-                "scenario_id": job["scenario_id"],
-                "framing": job["framing"],
-                "language": job["language"],
-                "model": endpoint["model"],
-                "prompt": job["prompt"],
-                "response": model_response,
-                "refusal": len(model_response.strip()) < 20,
-            },
-        )
+        if reply["stop_reason"] == "max_tokens":
+            print(
+                f"WARNING: {job['scenario_id']}/{job['framing']}/{job['language']} "
+                f"hit the {MAX_TOKENS}-token cap — response is incomplete",
+                file=sys.stderr,
+            )
+        elif reply["stop_reason"] == "end_turn" and not reply["text"].strip():
+            # Not a cap hit, so this is the model declining rather than running out
+            # of room. It is worth seeing, but it is not a truncated row.
+            print(
+                f"NOTE: {job['scenario_id']}/{job['framing']}/{job['language']} "
+                "ended normally but produced no text",
+                file=sys.stderr,
+            )
+
+        save_result(result_file, build_record(job, endpoint, reply))
 
         finished_by_file[result_file].add(job_key)
         written += 1
