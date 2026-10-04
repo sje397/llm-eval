@@ -156,6 +156,7 @@ RESPONSE:\n\
 {response_text}\n\
 "
 
+    output = None
     try:
         output = query_model(prompt, judge_model)
         output = int(output)
@@ -209,6 +210,7 @@ RESPONSE:\n\
 {response_text}\n\
 "
 
+    output = None
     try:
         output = query_model(prompt, judge_model)
         output = int(output)
@@ -401,6 +403,10 @@ if __name__ == "__main__":
 Examples:
   python judge_pipeline.py --lang 'en' --fact_db_path '../data/index.sqlite3' --response_json_path '../data/raw/us.en.jsonl' --fact_limit 5 --judge_model 'gemma-4-e4b-it-6bit' --output_csv_path '../data/evaluation.csv'
   python judge_pipeline.py --lang 'en' --fact_db_path '../data/index.sqlite3' --response_json_path '../data/raw/us.en.jsonl' --fact_limit 50 --judge_model 'Qwen3.8-Flash-Next-Uncensored-oQ4e-mtp' --output_csv_path '../data/evaluation.csv'
+  python judge_pipeline.py --lang 'en' --fact_db_path '../data/index.sqlite3' --response_json_path '../data/raw/us.en.jsonl' --fact_limit 50 --judge_model 'Qwen3.8-Flash-Next-Uncensored-oQ4e-mtp' --output_csv_path '../data/evaluation.us.en.csv'
+  python judge_pipeline.py --lang 'zh' --fact_db_path '../data/index.sqlite3' --response_json_path '../data/raw/us.zh.jsonl' --fact_limit 50 --judge_model 'Qwen3.8-Flash-Next-Uncensored-oQ4e-mtp' --output_csv_path '../data/evaluation.us.zh.csv'
+  python judge_pipeline.py --lang 'en' --fact_db_path '../data/index.sqlite3' --response_json_path '../data/raw/cn.en.jsonl' --fact_limit 50 --judge_model 'Qwen3.8-Flash-Next-Uncensored-oQ4e-mtp' --output_csv_path '../data/evaluation.cn.en.csv'
+  python judge_pipeline.py --lang 'zh' --fact_db_path '../data/index.sqlite3' --response_json_path '../data/raw/cn.zh.jsonl' --fact_limit 50 --judge_model 'Qwen3.8-Flash-Next-Uncensored-oQ4e-mtp' --output_csv_path '../data/evaluation.cn.zh.csv'
         """
     )
 
