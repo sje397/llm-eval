@@ -58,7 +58,7 @@ Dependencies by owner, from the plan's closing slide:
 | Michael | LLMEV-106 classification - completed 2026-10-05 | delivered 12, 15 |
 | Romit | LLMEV-107 aggregated metrics and its output format - delivered in PR #29 | 10, 11, 13, 14 - built |
 | Scott | Wikipedia service run · judge re-run within the pilot (LLMEV-136) | 17, 18 |
-| Parminder | Rubric decisions: length dimension, minimal-engagement threshold | 7, 9 |
+| Parminder | Rubric decisions - locked 2026-10-05 (LLMEV-142/143). Length stays outside the six-category rubric; EN words / ZH ideographs; minimal engagement = Claude p10, 254.8 to 255 words and 398.0 to 398 ideographs | 7, 9 - built on these assumptions, no rebuild |
 
 The plan names Romit's output format as the critical path: every Section C figure has
 to read from it, and the acceptance criteria require the figures to be reproducible

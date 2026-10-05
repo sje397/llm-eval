@@ -148,7 +148,10 @@ CN-17 Tiananmen 10, CN-29 HK protests 10, CN-07 Nanjing 9, CN-13 Cultural Revolu
 | deepseek en | 54 | 24 | 21 | 0 |
 | deepseek zh | 30 | 21 | 49 | 0 |
 
-Minimal threshold = Claude's 10th percentile: 255 words (en), 398 chars (zh).
+Minimal threshold = Claude's 10th percentile: 254.8 words (en, reported 255) and 398.0 CJK
+ideographs (zh, reported 398), rounded with Python's built-in `round()` (round-half-to-even).
+Both rubric decisions were locked by Parminder on 2026-10-05 (LLMEV-142/143): response length
+stays outside the LLMEV-104 six-category rubric and is used for engagement-depth analysis only.
 
 **Classifier, both arms (figures 12, 15):**
 - engagement, Claude (share of evaluated facts): full 26% en / 22% zh; partial 43 / 39; not_mentioned 28 / 33; refusal 0.1 / 0.0
@@ -212,8 +215,12 @@ counts, not from that flag.
    8,192). The `refusal` field in v1 was inverted. Figures 7–9 computed on v1 are wrong because 209
    responses were truncated.
 
-5. **Length units differ by language.** Words for English, CJK characters for Mandarin. Compare within
-   language only.
+5. **Length units differ by language.** Words for English, CJK ideographs for Mandarin — locked by
+   Parminder on 2026-10-05 (LLMEV-142/143). Compare within language only. The two scripts spell
+   `ideograph` with different regexes: `figures_a_b.py` uses `[\u4e00-\u9fff]`, while
+   `nonresponse_metrics.py` adds Ext-A and the compatibility block. On v2 they disagree on 1 of 300
+   Claude zh responses, and on nothing that moves a statistic (p10 398.0 and median 473 hold under
+   both), so the divergence is latent rather than active. Unify the definition before the corpus changes.
 
 6. **Slash alternatives in three scenario titles** (CN-11, CN-17, US-03) are retained verbatim from the
    source. Prompts used the first form.
@@ -221,9 +228,9 @@ counts, not from that flag.
 7. **The classifier scores 50 facts per response, not the whole fact set.** `judge_pipeline.py:372` slices
    the topic's facts with `[:fact_limit]`, and every `evaluation.*.csv` here was produced with
    `--fact_limit 50`. Topics hold 92–382 facts, so fact-level shares are computed over a fixed 50-fact
-   sample per response (60,000 classifications, not 7,883 x 20). The sample is the first 50 facts in
-   first 50 of the index's broadly relevance-ordered list, not a relevance-ranked top-50, and it is the
-   same 50 for every model and language, so cross-cell comparisons stay fair. Measured on the index:
+   sample per response (60,000 classifications, not 7,883 x 20). The sample is the first 50 facts of the
+   index's broadly relevance-ordered list, not a relevance-ranked top-50, and it is the same 50 for
+   every model and language, so cross-cell comparisons stay fair. Measured on the index:
    median Spearman(stored position, relevance) = -0.499, median 32 local inversions per topic, 1 of 60
    topics with none; the slice captures a median 90% of the facts at relevance ≥ 0.9 and 51% of a topic's
    total relevance mass, overlapping a strict top-50 by a median 34 of 50. The index holds 7,883 facts
