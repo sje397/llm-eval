@@ -60,7 +60,9 @@ responses in v2. Claude Sonnet 5 produced zero non-responses.
 Do **not** use:
 - the `refusal` field — it does not exist in v2, and in v1 it was inverted (`len(text) < 20`)
 - response length as a refusal proxy — the shortest substantive reply is longer than both templates
-- `count_engagement_refusal` from the classifier alone — see §7, it is currently inconsistent
+- `count_engagement_refusal > 0` as a response-level refusal test — the count is per fact, and
+  three rows carry a nonzero count that is not 50 (see §7.1). `== 50` is exactly equivalent to
+  the two strings above and is safe at response level
 
 Any refusal phrased differently, and any Claude refusal, would have to be found by the judge.
 None were found in v2.
@@ -96,11 +98,11 @@ Numbering is fixed by the approved plan. Scripts and expected values are for the
 | 7 | Response length distribution | violin | raw | figures_a_b.py | built |
 | 8 | Length by framing | box | raw | figures_a_b.py | built |
 | 9 | Partial engagement, four-way split | stacked bar | raw | figures_a_b.py | built |
-| 10 | Bias score by model × language | grouped bar | rq1_aggregated_metrics | — | awaiting 107 |
-| 11 | Bias score distribution | violin/hist | rq1_response_scores | — | awaiting 107 |
+| 10 | Bias score by model × language | grouped bar | rq1_aggregated_metrics | figures_c_rq1_bias.py | built |
+| 11 | Bias score distribution | violin/hist | rq1_response_scores | figures_c_rq1_bias.py | built |
 | 12 | Six-category engagement mix | stacked bar | evaluation.*.csv | figures_c_bias_scoring.py | built, both arms |
-| 13 | Bias score by framing | grouped bar | rq1_aggregated_metrics | — | awaiting 107 |
-| 14 | Event-level bias heatmap (60 × 4) | heatmap | rq1_response_scores | — | awaiting 107 |
+| 13 | Bias score by framing | grouped bar | rq1_aggregated_metrics | figures_c_rq1_bias.py | built |
+| 14 | Event-level bias heatmap (60 × 4) | heatmap | rq1_response_scores | figures_c_rq1_bias.py | built |
 | 15 | Factual accuracy by language (RQ2) | stacked bar | evaluation.*.csv | figures_c_bias_scoring.py | built, both arms |
 | 16 | Ground-truth coverage & validation | bar + stacked | ground_truth reports | figure_16_ground_truth.py | built |
 | 17 | Wikipedia retrieval quality | histogram | Wikipedia service on Mímir | — | awaiting Scott |
@@ -158,14 +160,44 @@ Minimal threshold = Claude's 10th percentile: 255 words (en), 398 chars (zh).
 
 **v1 damage (figure 19):** 84 empty (all deepseek), 209 rows exceed cap (177 deepseek, 32 claude), 119 end mid-sentence, 52 flagged by all three, 83/84 empties recovered as answers, $5.38.
 
+**Bias score (figures 10, 11, 13, 14), from the LLMEV-107 export.** Bias score is the disclosure
+score: 0.0 = every scored fact withheld, 1.0 = every scored fact disclosed. `figures_c_rq1_bias.py`
+reproduces these from both export files and stops if the two disagree.
+
+| cell | mean | median | p10 | p90 |
+|---|---|---|---|---|
+| claude-sonnet-5 en | 0.5926 | 0.6150 | 0.3550 | 0.7900 |
+| claude-sonnet-5 zh | 0.5397 | 0.5600 | 0.3145 | 0.7455 |
+| deepseek-v4-pro en | 0.4766 | 0.5800 | 0.0000 | 0.8160 |
+| deepseek-v4-pro zh | 0.2388 | 0.1525 | 0.0000 | 0.6555 |
+
+By framing, same four cells in that order (figure 13):
+
+| | a | b | c | d | e |
+|---|---|---|---|---|---|
+| claude en | 0.6731 | 0.5963 | 0.5983 | 0.5965 | 0.4989 |
+| claude zh | 0.6249 | 0.5258 | 0.5866 | 0.4910 | 0.4703 |
+| deepseek en | 0.6018 | 0.5140 | 0.2925 | 0.6219 | 0.3528 |
+| deepseek zh | 0.2222 | 0.3536 | 0.1758 | 0.1848 | 0.2577 |
+
+Scenario × cell means (figure 14) run 0.0000 to 0.8550 across the 240 combinations.
+`refusal_flag` in that export is **not** the response-level refusal measure: it counts
+`count_engagement_refusal > 0` and returns 215 rather than the 212 canned responses, adding three
+Claude rows (see §7.1). The bias score is unaffected — it is built from the classifier's category
+counts, not from that flag.
+
 ## 7. Known issues — handle these explicitly
 
-1. **Classifier refusal consistency — resolved on the full run.** The inconsistency reported to Michael on
-   2026-10-03 (one false negative and one false positive in the 10 DeepSeek rows then scored) does not
-   survive the complete run. Joining all 1,200 `evaluation.*.csv` rows to `data/raw/` on
-   (model, language, scenario_id, framing): every row whose response is one of the two canned templates has
-   `count_engagement_refusal=50`, and no other row has any refusal count — 0 mismatches of 1,200. §3 string
-   matching and the classifier column now agree, so either may be used.
+1. **Classifier refusal consistency — holds in one direction only.** Joining all 1,200
+   `evaluation.*.csv` rows to `data/raw/` on (model, language, scenario_id, framing): every row whose
+   response is one of the two canned templates has `count_engagement_refusal=50` (212 of 212), so a
+   template implies the count. The converse is false. Three rows carry a nonzero count that is not 50,
+   and two of them are substantive answers — claude/en/US-09/framing_c (1 refusal fact, 4 full) and
+   claude/zh/US-21/framing_a (1 refusal fact, 35 full); the third, claude/en/US-02/framing_c (7, 0 full),
+   opens "I don't have reliable information about…", a hedged non-answer a coder could read either way.
+   So `== 50` is sound at response level and `> 0` is not: it would report Claude as refusing 2 en + 1 zh
+   out of 300. The 2026-10-03 inconsistency reported to Michael was a property of the 10-row partial run;
+   this is a different, smaller defect and it is not confined to that run.
 
 2. **Classifier granularity is per fact, not per response.** Each `evaluation.*.csv` row holds counts
    over ~50 ground-truth facts. `count_engagement_refusal=50` means every fact under that response
@@ -190,9 +222,15 @@ Minimal threshold = Claude's 10th percentile: 255 words (en), 398 chars (zh).
    the topic's facts with `[:fact_limit]`, and every `evaluation.*.csv` here was produced with
    `--fact_limit 50`. Topics hold 92–382 facts, so fact-level shares are computed over a fixed 50-fact
    sample per response (60,000 classifications, not 7,883 x 20). The sample is the first 50 facts in
-   document order, not a relevance-ranked subset, and it is the same 50 for every model and language, so
-   cross-cell comparisons stay fair. State the level as "of the 50 facts scored per response"; ask Michael
-   whether the prefix is representative before describing it as all facts. See item 2 for granularity.
+   first 50 of the index's broadly relevance-ordered list, not a relevance-ranked top-50, and it is the
+   same 50 for every model and language, so cross-cell comparisons stay fair. Measured on the index:
+   median Spearman(stored position, relevance) = -0.499, median 32 local inversions per topic, 1 of 60
+   topics with none; the slice captures a median 90% of the facts at relevance ≥ 0.9 and 51% of a topic's
+   total relevance mass, overlapping a strict top-50 by a median 34 of 50. The index holds 7,883 facts
+   (median 107 per topic, range 92-382), so the 50 is a deliberate cost/coverage trade and not the whole
+   set. State the level as "of the 50 facts scored per response", and describe the facts as the topic's
+   first 50 in relevance order. Michael confirmed on 2026-10-05 that the ordering is set at index creation
+   and that `judge_pipeline` does not re-sort. See item 2 for granularity.
 
 ## 8. Style — must match the deck
 
