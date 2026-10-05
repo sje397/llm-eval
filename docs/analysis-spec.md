@@ -20,7 +20,7 @@ writing the same filenames as the committed set in `docs/visualisation/figures/`
 | `data/evaluation.cn.{en,zh}.csv` | 300 each | LLMEV-106 classifier, DeepSeek arm | complete (2026-10-05) |
 | `data/index.sqlite3` (`articles.facts_json`) | 60 topics, 7,883 facts | LLMEV-102/103, validated by LLMEV-111 | complete |
 | `data/*.json` (two LLMEV-111 validation reports) | figure 16 inputs | LLMEV-111 | complete |
-| `data/processed/rq1_*.csv` | per Romit's spec (§4) | LLMEV-107 | **not yet produced** |
+| `data/processed/rq1_*.csv` | per Romit's spec (§4) | LLMEV-107 (`scripts/rq1_export.py`) | complete |
 
 v1 raw corpus (max_tokens=1024) is retrievable at git commit `68ad1715` but must not be used for analysis.
 See `docs/corpus-provenance.md`.
@@ -96,11 +96,11 @@ Numbering is fixed by the approved plan. Scripts and expected values are for the
 | 7 | Response length distribution | violin | raw | figures_a_b.py | built |
 | 8 | Length by framing | box | raw | figures_a_b.py | built |
 | 9 | Partial engagement, four-way split | stacked bar | raw | figures_a_b.py | built |
-| 10 | Bias score by model × language | grouped bar | rq1_aggregated_metrics | — | awaiting 107 |
-| 11 | Bias score distribution | violin/hist | rq1_response_scores | — | awaiting 107 |
+| 10 | Bias score by model × language | grouped bar | rq1_aggregated_metrics | — | data ready (awaiting figure script) |
+| 11 | Bias score distribution | violin/hist | rq1_response_scores | — | data ready (awaiting figure script) |
 | 12 | Six-category engagement mix | stacked bar | evaluation.*.csv | figures_c_bias_scoring.py | built, both arms |
-| 13 | Bias score by framing | grouped bar | rq1_aggregated_metrics | — | awaiting 107 |
-| 14 | Event-level bias heatmap (60 × 4) | heatmap | rq1_response_scores | — | awaiting 107 |
+| 13 | Bias score by framing | grouped bar | rq1_aggregated_metrics | — | data ready (awaiting figure script) |
+| 14 | Event-level bias heatmap (60 × 4) | heatmap | rq1_response_scores | — | data ready (awaiting figure script) |
 | 15 | Factual accuracy by language (RQ2) | stacked bar | evaluation.*.csv | figures_c_bias_scoring.py | built, both arms |
 | 16 | Ground-truth coverage & validation | bar + stacked | ground_truth reports | figure_16_ground_truth.py | built |
 | 17 | Wikipedia retrieval quality | histogram | Wikipedia service on Mímir | — | awaiting Scott |

@@ -1,0 +1,23 @@
+{
+  "basis": "count",
+  "bootstrap_iterations": 10000,
+  "bootstrap_seed": 20261005,
+  "score_mapping_version": "1.0",
+  "pairing": "(scenario_id, framing) for model_comparison and language_comparison",
+  "topic_gap": "unpaired US-centric vs China-centric within model \u00d7 language",
+  "refusal": "canned template OR count_engagement_refusal > 0",
+  "rows": {
+    "rq1_response_scores.csv": 1200,
+    "rq1_aggregated_metrics.csv": 60,
+    "rq1_statistical_comparisons.csv": 48
+  },
+  "refusal_total": 215,
+  "languages": [
+    "en",
+    "zh"
+  ],
+  "models": [
+    "claude-sonnet-5",
+    "deepseek-v4-pro"
+  ]
+}

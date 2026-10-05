@@ -34,11 +34,11 @@ the figures below can be checked against the analysis that accompanies them.
 | 7 | Length of substantive responses | B | built |
 | 8 | Response length by framing | B | built |
 | 9 | Partial engagement - four response types | B | built |
-| 10 | Bias score by model and language | C | awaiting LLMEV-107 |
-| 11 | Bias score distribution | C | awaiting LLMEV-107 |
+| 10 | Bias score by model and language | C | data ready (`data/processed/rq1_aggregated_metrics.csv`) |
+| 11 | Bias score distribution | C | data ready (`data/processed/rq1_response_scores.csv`) |
 | 12 | Six-category engagement mix | C | built - both arms |
-| 13 | Bias score by framing | C | awaiting LLMEV-107 |
-| 14 | Event-level bias heatmap | C | awaiting LLMEV-107 |
+| 13 | Bias score by framing | C | data ready (`data/processed/rq1_aggregated_metrics.csv`) |
+| 14 | Event-level bias heatmap | C | data ready (`data/processed/rq1_response_scores.csv`) |
 | 15 | Factual accuracy by language | C | built - both arms |
 | 16 | Ground-truth evidence base - coverage and validation | D | built |
 | 17 | Retrieval quality | D | awaiting Wikipedia service run |
@@ -56,7 +56,7 @@ Dependencies by owner, from the plan's closing slide:
 | Owner | Item | Unblocks |
 |---|---|---|
 | Michael | LLMEV-106 classification - completed 2026-10-05 | delivered 12, 15 |
-| Romit | LLMEV-107 aggregated metrics and its output format | 10, 11, 13, 14 |
+| Romit | LLMEV-107 aggregated metrics and its output format (`scripts/rq1_export.py` → `data/processed/rq1_*.csv`) | 10, 11, 13, 14 |
 | Scott | Wikipedia service run · judge re-run within the pilot (LLMEV-136) | 17, 18 |
 | Parminder | Rubric decisions: length dimension, minimal-engagement threshold | 7, 9 |
 
