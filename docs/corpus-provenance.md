@@ -180,12 +180,15 @@ from the recorded usage; DeepSeek priced at peak). 1,200 rows, 0 failures.
 corpus, so the cap is no longer the binding constraint it was at 1024.
 
 One incidental finding, flagged because it bears on the RQ rather than on the
-corpus: the DeepSeek refusal template appears on 148 rows and **all of them are in
-`cn.zh`** — zero in `cn.en`, where the same model answers the same scenarios in
-English. 128 of v1's 159 refusals recur (81%), so this is a stable model behaviour
-rather than sampling noise. Note the scope of what string-matching can see: it
-finds this one canned template and nothing else. A refusal phrased any other way —
-and every refusal by the `us` model — has to be found by the judge.
+corpus: the DeepSeek refusal string appears on 148 rows and **all of them are in
+`cn.zh`** — that string never appears in `cn.en`, where the same model answers the
+same scenarios in English. The English wording is a second canned template rather than
+an absence of refusal: it appears on 64 `cn.en` rows, and the two together account for
+all 212 non-responses (v1: 159 and 57). 128 of v1's 159 Mandarin refusals and 49 of
+its 57 English ones recur, so this is a stable model behaviour rather than sampling
+noise. Note the scope of what string-matching can see: it finds these two canned
+templates and nothing else. A refusal phrased any other way — and every refusal by the
+`us` model — has to be found by the judge.
 
 
 The manifest also carries the model IDs and base URLs used (never credentials), a
