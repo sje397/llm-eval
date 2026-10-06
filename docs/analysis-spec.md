@@ -83,6 +83,26 @@ Three files under `data/processed/`:
 Corrections already sent to Romit: `scenario_id` must be `CN-01` form; `language` lowercase.
 `topic_origin` takes `US-centric | China-centric | All`.
 
+## Engagement-depth conventions
+
+Response length is intentionally excluded from the formal LLMEV-104
+six-category engagement rubric and is used only as a supporting
+descriptive measure.
+
+For Figure 9, minimal engagement is defined using the Claude Sonnet 5
+10th percentile:
+
+- English: <255 words
+- Mandarin: <398 CJK ideographs
+
+English response length is measured in words and Mandarin response length
+using CJK ideograph count. Displayed rounded values use Python's built-in
+`round()` convention.
+
+This threshold is descriptive only. It does not create a seventh rubric
+category and does not alter the LLMEV-105 Disclosure/Restriction Score
+mapping.
+
 ## 5. The figure set
 
 Numbering is fixed by the approved plan. Scripts and expected values are for the v2 corpus.
