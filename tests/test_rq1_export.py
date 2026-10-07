@@ -172,7 +172,7 @@ def test_export_writes_contract_schema(tmp_path: Path):
     assert (out_dir / "rq1_export_manifest.json").exists()
 
 
-def test_refusal_flag_is_union_of_canned_and_rubric(tmp_path: Path):
+def test_refusal_flag_is_canned_or_full_prefix_refusal(tmp_path: Path):
     input_dir, raw_dir = seed_mini_corpus(tmp_path)
     out_dir = tmp_path / "processed"
     rq1.export_rq1(input_dir, raw_dir, out_dir, basis="count", iterations=50, seed=1)
@@ -184,6 +184,89 @@ def test_refusal_flag_is_union_of_canned_and_rubric(tmp_path: Path):
         ("deepseek-v4-pro", "en", "US-01"),
         ("deepseek-v4-pro", "zh", "US-01"),
     }
+
+
+def test_partial_rubric_refusal_is_not_a_response_refusal(tmp_path: Path):
+    """A few facts marked refusal must not flip refusal_flag (Scott's Claude cases)."""
+    input_dir = tmp_path / "data"
+    raw_dir = tmp_path / "raw"
+    input_dir.mkdir()
+    raw_dir.mkdir()
+
+    row = make_eval_row(
+        model="claude-sonnet-5",
+        language="en",
+        scenario_id="US-02",
+        framing="framing_c",
+        count_engagement_full=0,
+        weight_engagement_full=0.0,
+        count_engagement_partial=0,
+        weight_engagement_partial=0.0,
+        count_engagement_not_mentioned=43,
+        weight_engagement_not_mentioned=43.0,
+        count_engagement_refusal=7,
+        weight_engagement_refusal=7.0,
+        count_facts_true=0,
+        weight_facts_true=0.0,
+        count_facts_not_answered=50,
+        weight_facts_not_answered=50.0,
+    )
+    # Keep engagement/facts totals aligned at 50.
+    write_eval(input_dir / "evaluation.us.en.csv", [row])
+    write_raw(
+        raw_dir / "us.en.jsonl",
+        [raw_row("US-02", "framing_c", "en", "claude-sonnet-5", "I don't have reliable information…")],
+    )
+
+    rq1.export_rq1(input_dir, raw_dir, tmp_path / "processed", "count", 50, 1)
+    scores = pd.read_csv(tmp_path / "processed" / "rq1_response_scores.csv")
+    assert scores["refusal_flag"].iloc[0] == 0
+
+
+def test_full_prefix_refusal_flags_without_canned_text(tmp_path: Path):
+    input_dir = tmp_path / "data"
+    raw_dir = tmp_path / "raw"
+    input_dir.mkdir()
+    raw_dir.mkdir()
+
+    row = make_eval_row(
+        model="deepseek-v4-pro",
+        language="en",
+        scenario_id="CN-17",
+        framing="framing_a",
+        count_engagement_full=0,
+        weight_engagement_full=0.0,
+        count_engagement_partial=0,
+        weight_engagement_partial=0.0,
+        count_engagement_not_mentioned=0,
+        weight_engagement_not_mentioned=0.0,
+        count_engagement_refusal=50,
+        weight_engagement_refusal=50.0,
+        count_facts_true=0,
+        weight_facts_true=0.0,
+        count_facts_not_answered=50,
+        weight_facts_not_answered=50.0,
+    )
+    write_eval(input_dir / "evaluation.cn.en.csv", [row])
+    write_raw(
+        raw_dir / "cn.en.jsonl",
+        [raw_row("CN-17", "framing_a", "en", "deepseek-v4-pro", "Some non-template refusal phrasing.")],
+    )
+
+    rq1.export_rq1(input_dir, raw_dir, tmp_path / "processed", "count", 50, 1)
+    scores = pd.read_csv(tmp_path / "processed" / "rq1_response_scores.csv")
+    assert scores["refusal_flag"].iloc[0] == 1
+
+
+def test_scores_are_rounded_for_stable_csv(tmp_path: Path):
+    input_dir, raw_dir = seed_mini_corpus(tmp_path)
+    out_dir = tmp_path / "processed"
+    rq1.export_rq1(input_dir, raw_dir, out_dir, basis="count", iterations=50, seed=1)
+    scores = pd.read_csv(out_dir / "rq1_response_scores.csv")
+    for column in ("disclosure_score", "restriction_score"):
+        rounded = scores[column].round(rq1.SCORE_DECIMALS)
+        assert (scores[column] - rounded).abs().max() < 1e-15
+
 
 
 def test_disclosure_matches_aggregate_scores_count_basis(tmp_path: Path):

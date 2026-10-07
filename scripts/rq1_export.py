@@ -17,10 +17,12 @@ Conventions (analysis-spec §4 corrections)
 * ``language`` is lowercase ``en`` / ``zh``.
 * ``topic_origin`` is ``US-centric`` | ``China-centric`` | ``All``.
 
-Refusal (union of the two detectors that now agree on v2)
----------------------------------------------------------
+Refusal (response-level, not per-fact)
+--------------------------------------
 * canned template match on the raw response text (see ``nonresponse_metrics``), or
-* ``count_engagement_refusal > 0`` from the LLMEV-106 classifier.
+* ``count_engagement_refusal == 50`` from the LLMEV-106 classifier (all facts in the
+  scored prefix marked refused). A partial count (``> 0``) is not a response-level
+  refusal: three Claude rows have 1–7 refusal facts while still answering.
 
 Usage
 -----
@@ -87,9 +89,23 @@ COMPARISON_COLUMNS = [
 FRAMINGS = ["framing_a", "framing_b", "framing_c", "framing_d", "framing_e"]
 TOPIC_ORIGINS = ("China-centric", "US-centric")
 
+# judge_pipeline scores a fixed 50-fact prefix per response; a full-response
+# refusal is every fact in that prefix marked refused, not a partial count.
+FULL_RESPONSE_REFUSAL_COUNT = 50
+# Keep regenerated CSVs byte-stable across numpy/pandas builds.
+SCORE_DECIMALS = 6
+
 
 class ExportError(RuntimeError):
     """Inputs cannot be turned into the RQ1 contract files."""
+
+
+def _round_float_columns(frame: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    out = frame.copy()
+    for column in columns:
+        if column in out.columns:
+            out[column] = out[column].astype(float).round(SCORE_DECIMALS)
+    return out
 
 
 def topic_origin_from_scenario(scenario_id: str) -> str:
@@ -135,14 +151,17 @@ def build_response_scores(
         )
 
     canned = np.array([canned_index[key] for key in keys], dtype=int)
-    rubric_refusal = (rows["count_engagement_refusal"].astype(float) > 0).to_numpy().astype(int)
+    rubric_refusal = (
+        rows["count_engagement_refusal"].astype(float) == FULL_RESPONSE_REFUSAL_COUNT
+    ).to_numpy().astype(int)
     rows["refusal_flag"] = np.maximum(canned, rubric_refusal)
 
     rows = rows.sort_values(
         ["model", "language", "scenario_id", "framing"], kind="mergesort"
     ).reset_index(drop=True)
     rows.insert(0, "response_id", [f"RESP_{i:04d}" for i in range(1, len(rows) + 1)])
-    return rows[RESPONSE_COLUMNS]
+    scores = rows[RESPONSE_COLUMNS]
+    return _round_float_columns(scores, ["disclosure_score", "restriction_score"])
 
 
 def build_aggregated_metrics(scores: pd.DataFrame) -> pd.DataFrame:
@@ -178,9 +197,20 @@ def build_aggregated_metrics(scores: pd.DataFrame) -> pd.DataFrame:
             )
 
     table = pd.DataFrame.from_records(records)
-    return table.sort_values(
+    table = table.sort_values(
         ["model", "language", "framing", "topic_origin"], kind="mergesort"
     ).reset_index(drop=True)[AGGREGATE_COLUMNS]
+    return _round_float_columns(
+        table,
+        [
+            "mean_disclosure_score",
+            "std_disclosure_score",
+            "variance_disclosure",
+            "mean_restriction_score",
+            "std_restriction_score",
+            "refusal_rate",
+        ],
+    )
 
 
 def _paired_vectors(
@@ -363,7 +393,10 @@ def build_statistical_comparisons(
                     }
                 )
 
-    return pd.DataFrame.from_records(records)[COMPARISON_COLUMNS]
+    table = pd.DataFrame.from_records(records)[COMPARISON_COLUMNS]
+    return _round_float_columns(
+        table, ["statistic", "p_value", "effect_size", "bias_score_gap"]
+    )
 
 
 def export_rq1(
@@ -402,7 +435,10 @@ def export_rq1(
         "score_mapping_version": agg.SCORE_MAPPING_VERSION,
         "pairing": "(scenario_id, framing) for model_comparison and language_comparison",
         "topic_gap": "unpaired US-centric vs China-centric within model × language",
-        "refusal": "canned template OR count_engagement_refusal > 0",
+        "refusal": (
+            f"canned template OR count_engagement_refusal == {FULL_RESPONSE_REFUSAL_COUNT}"
+        ),
+        "score_decimals": SCORE_DECIMALS,
         "rows": {
             "rq1_response_scores.csv": len(scores),
             "rq1_aggregated_metrics.csv": len(aggregated),
