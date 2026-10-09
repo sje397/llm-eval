@@ -19,6 +19,19 @@ Neither script needs the network or a model. Both verify their own inputs on eve
 and refuse to draw an unverified claim, so a stale source file fails loudly instead of
 silently producing a wrong picture.
 
+Neither script needs the network or a model. Both verify their own inputs on every run
+and refuse to draw an unverified claim, so a stale source file fails loudly instead of
+silently producing a wrong picture.
+
+**These are not redrawings of an existing diagram.** LLMEV-96 ("Recreate Data Flow
+Architecture") is marked Done as of 2026-08-20, so before drawing anything we checked
+whether it had already produced one. It carries no description, attachment, comment or
+issue link, so it names no artefact; `git ls-files` for image assets returns, besides
+these four files, only the nineteen visualisation figures and the web assets; and the
+tender draft describes the six modules in prose and contains no diagram. Nothing is
+being duplicated. If LLMEV-96's output exists somewhere outside this repository, it is
+not here, and this note is the record of that.
+
 ## Why the SVG files are committed here
 
 `docs/visualisation/figures/` tracks only the PNGs and leaves each figure script's SVG
