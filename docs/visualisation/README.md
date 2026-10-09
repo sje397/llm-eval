@@ -10,7 +10,7 @@ them.
 |---|---|
 | `plan/LLMEV_Visualisation_Plan_DTF.pptx` | The plan as a deck: one slide per figure, with the analysis written on it |
 | `plan/LLMEV_Analysis_Visualisation_Plan.docx` | The same plan as a document |
-| `figures/` | The eighteen built figures, named by figure number |
+| `figures/` | The nineteen built figures, named by figure number |
 | `../scripts/nonresponse_metrics.py` | Prints the numbers behind figures 1-9 from `data/raw/` |
 | `../scripts/figures_a_b.py` | Builds figures 1-9 from `data/raw/` |
 | `../scripts/figures_c_bias_scoring.py` | Builds figures 12 and 15, both arms |
@@ -44,10 +44,10 @@ the figures below can be checked against the analysis that accompanies them.
 | 15 | Factual accuracy by language | C | built - both arms |
 | 16 | Ground-truth evidence base - coverage and validation | D | built |
 | 17 | Retrieval quality | D | built |
-| 18 | Judge consistency | D | awaiting pilot re-run (LLMEV-136) |
+| 18 | Judge consistency | D | built |
 | 19 | Collection protocol - what the 1,024-token cap did to v1 | D | built |
 
-Eighteen built, one awaiting upstream data. The built set is A 6, B 3, C 6, D 3; the
+Nineteen built. The built set is A 6, B 3, C 6, D 4; the
 plan's own breakdown lists eleven, written before the LLMEV-106 and LLMEV-107 output
 existed. Its closing slide says "the remaining ten figures"; that count is wrong - see
 [Two things to settle](#two-things-to-settle-before-the-report-goes-out).
@@ -58,7 +58,7 @@ Dependencies by owner, from the plan's closing slide:
 |---|---|---|
 | Michael | LLMEV-106 classification - completed 2026-10-05 | delivered 12, 15 |
 | Romit | LLMEV-107 aggregated metrics and its output format - delivered in PR #29 | 10, 11, 13, 14 - built |
-| Scott | judge re-run within the pilot (LLMEV-136) | 18 - 17 built 2026-10-09 |
+| Scott | judge re-run within the pilot (LLMEV-136) | 18 - built 2026-10-09 from the harness's own run |
 | Parminder | Rubric decisions - locked 2026-10-05 (LLMEV-142/143). Length stays outside the six-category rubric; EN words / ZH ideographs; minimal engagement = Claude p10, 254.8 to 255 words and 398.0 to 398 ideographs | 7, 9 - built on these assumptions, no rebuild |
 
 The plan names Romit's output format as the critical path: every Section C figure has
@@ -75,6 +75,8 @@ python scripts/figures_c_rq1_bias.py              # figures 10, 11, 13, 14
 python scripts/figure_16_ground_truth.py          # figure 16
 python scripts/figure_19_collection_protocol.py   # figure 19
 python scripts/figure_17_retrieval_quality.py     # figure 17 (needs the retrieval service)
+python scripts/judge_consistency.py               # the judge re-run behind figure 18 (~2h15m)
+python scripts/figure_18_judge_consistency.py     # figure 18 (reads data/analysis/)
 ```
 
 The five figure scripts write PNG and SVG into `figures/` by default, or into the output
@@ -206,6 +208,49 @@ reporting no rate at all. The three groups above are an enumeration, not a measu
 If the report needs the split, it needs a redirect or category relation from Wikipedia
 itself.
 
+### Figure 18 re-runs the judge on itself
+
+Also not a function of the corpus files: it measures how reproducible the judge is.
+`judge_consistency.py` draws 16 responses, four from each corpus file, judging each one's
+first 50 facts twice with an identical prompt and comparing the two passes. The committed
+judge path sends no temperature and no seed, so the two passes are the same request - any
+disagreement is the judge disagreeing with itself. The sample deliberately varies fact
+count, framing and language at once, so no single framing can drive the result.
+
+| Measure | Result |
+|---|---|
+| Engagement category, per fact | 82.00% agreement - 144 of 800 facts changed category |
+| Factuality category, per fact | 96.38% agreement - 29 of 800 |
+| Whole responses identical on every count | 3 of 16 (18.8%) |
+| Response-level disclosure weight, mean absolute change | 1.33 percentage points (max 3.83) |
+
+**The two rows matter differently, and RQ1 uses the lower one.** Per-fact labels are noisy:
+one fact in five changes engagement category between two identical calls. But the
+distributions those labels feed are far steadier - the L1 distance between the two passes'
+category counts totals 84 across the 16 responses, roughly 2.6 of 50 facts moving per
+response - because the flips run in both directions and largely cancel. RQ1 reports the
+per-response six-category distribution and the weight derived from it, not per-fact labels,
+so it is the 1.33-point figure that governs: differences smaller than a few percentage
+points on that scale are not resolvable, and any future claim that small needs a longer
+run, not a firmer conclusion.
+
+This also sets the bar for any judge substitution. The fast candidates measured earlier
+agree with the reference judge on 44.8% to 64.8% of facts, all far below the 82% the judge
+achieves against itself, which is why substituting one was rejected. Figure 18 is the noise
+floor those comparisons have to beat.
+
+Refusal rows are excluded from the flip denominator and reported separately, because
+`evaluate_response` short-circuits on them without calling the judge at all; counting them
+would report perfect reliability for calls that were never made. There were none in this
+run, and no errors or unparseable labels either.
+
+Two limits worth stating rather than leaving to a reader. This is 16 responses of the
+corpus's 1,200, so it bounds the judge's self-agreement at the sampled points and not
+corpus-wide; and it measures one judge on one machine. The cost is also real: the run took
+2h15m31s (8,131.7s) for 3,200 judge calls at six workers, about 24 calls a minute, so
+`--per-file 4` is not a quick job - a single-pass run over all 1,200 responses at
+`fact_limit=50` would be 120,000 calls on this same path.
+
 ### Verified against the plan
 
 The numbers the plan states for figures 1, 2, 3, 4, 6, 7, 8 and 9 were checked
@@ -289,8 +334,8 @@ that exists in the labels, not in the data. Suggest `EN / Claude`, `ZH / Claude`
 `EN / DeepSeek`, `ZH / DeepSeek`.
 
 **2. The figure count on the closing slide.** It says "the remaining ten figures"; the
-title slide and the section breakdown both give eight (nineteen total, eleven built).
-Eight is right.
+title slide and the section breakdown both give eight (nineteen total, eleven built when
+the plan was written - all nineteen are built now). Eight is right.
 
 ## Not committed
 
