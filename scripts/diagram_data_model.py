@@ -321,11 +321,17 @@ def main():
              "The keys that do the joining are implicit: articles.topic_id = scenarios[].id (verified equal as sets, 60/60), and judge output aligns 1:1 with the corpus on (scenario_id, framing, language, model).",
              fontsize=8.4, color=GREY, va="top", ha="left", linespacing=1.6)
 
+    # Count the derived boxes rather than writing the number into the caption: the two
+    # drifted apart once (README said four, caption said three, three were drawn).
+    n_derived = sum(1 for b in BOXES.values() if b.get("tag") == "derived")
+    derived_word = {1: "one", 2: "two", 3: "three", 4: "four"}.get(n_derived, str(n_derived))
+
+
     fig.text(0.010, -0.078,
              "Shipped DDL:  " + " ".join(DDL.split()) + "\n"
              "build_index.py declares articles(topic TEXT PRIMARY KEY, source_url, facts_json) — three columns. The shipped database has four, and no committed script creates topic_id.\n"
              "judge_pipeline.py reads the table with SELECT * and indexes the result by column NAME, so the consumer depends on a schema no committed builder produces.\n"
-             "The three boxes tagged 'derived' come from PR #29 (LLMEV-107), which is still OPEN: data/processed/ does not yet exist on main.",
+             f"The {derived_word} boxes tagged 'derived' come from PR #29 (LLMEV-107), which is still OPEN: data/processed/ does not yet exist on main.",
              fontsize=7.8, color=AMBER, va="top", ha="left", linespacing=1.6)
 
     # metadata Date=None for the same reason as the architecture diagram: the SVG

@@ -56,9 +56,11 @@ CREATE TABLE IF NOT EXISTS "articles" (
 The ground-truth layer is therefore one table with the facts denormalised into
 `facts_json` as a JSON array - 60 rows, 7,883 facts, 92-382 per article. There is no fact
 table, and `topic_id` holds no declared constraint tying it to `scenarios.json`; the join
-is implicit and was checked as sets (60/60 matched). Four boxes in the diagram are tagged
-*derived*: they come from the LLMEV-107 export (Romit's PR #29, still open), and
-`data/processed/` does not yet exist on `main`.
+is implicit and was checked as sets (60/60 matched). Three boxes are tagged *derived*, which is the whole of the fourth data
+layer: they come from the LLMEV-107 export (Romit's PR #29, still open), and
+`data/processed/` does not yet exist on `main`. The caption counts them from the drawing
+rather than restating the number, because those two disagreed once (this README said four,
+the caption said three, and three were drawn).
 
 ## LLMEV-145 — pipeline architecture
 
