@@ -98,13 +98,15 @@ Source of truth is the code plus `docs/module-design.md`: the script parses the 
 list out of that document and checks that every module file it names exists on disk
 before drawing.
 
-**The six-or-seven question resolves cleanly.** `module-design.md` says the pipeline is
-"composed of six independent, composable modules" and then numbers *seven* entries;
-the team's tender draft (`tender-deliverables-hours-timeline.md`, a team document held
-outside this repository because it carries internal planning figures) quotes six.
+**The six-or-seven question resolves cleanly - but by derivation, not by any sentence the
+document contains.** `module-design.md` says the pipeline is "composed of six independent,
+composable modules" and then numbers *seven* entries, and it never reconciles the two. The
+team's tender draft (`tender-deliverables-hours-timeline.md`, a working draft held out of
+the published repository; see `.gitignore`) quotes six.
 `src/pipeline/` holds eight files.
 `index.ts` is the orchestrator and `types.ts` is interfaces with no runtime code, so
-neither is a module, which leaves exactly six. The document's numbering counts the shared
+neither is a module, which leaves exactly six - the count the prose supports, arrived at
+from the code rather than read off the page. The document's numbering counts the shared
 types as entry 1, and that numbering is the only inconsistent thing about it. The diagram
 draws six.
 

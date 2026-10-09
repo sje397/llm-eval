@@ -129,10 +129,12 @@ def verify():
     flows_differ = flow_order != list_order
 
     # The tender's count, which is the claim the diagram exists to substantiate.
-    # That document is not tracked in this repository, so this cross-check is
-    # CONDITIONAL: it asserts when the file is present and says so when it is not.
-    # Every check above is unconditional, so a clean clone still verifies the drawn
-    # structure from the code and the design doc - it just cannot check the tender.
+    # That document is present in the working tree but deliberately untracked - it is an
+    # unreviewed draft and this repository is public, so .gitignore holds it out. It is
+    # read when it is there, so this cross-check is CONDITIONAL: it asserts when the file
+    # is present and says so when it is not. Every check above is unconditional, so a
+    # clean clone still verifies the drawn structure from the code and the design doc -
+    # it just cannot check the tender.
     tender_claim = None
     if os.path.exists(TENDER):
         tender = open(TENDER, encoding="utf-8").read()
