@@ -5,3 +5,12 @@ dist/
 demo/data/
 config/endpoints.yaml
 __pycache__/
+
+# Generated analysis output (reproducible from the figure scripts; see
+# docs/visualisation/README.md, "Not committed")
+data/analysis/
+
+# SVG companions the visualisation figure scripts write next to each PNG.
+# Only the PNGs are tracked. Scoped here so the hand-written diagrams in
+# docs/diagrams/ stay tracked.
+docs/visualisation/figures/*.svg
