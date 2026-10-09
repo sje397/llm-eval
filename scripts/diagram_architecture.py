@@ -7,9 +7,9 @@ checked to exist on disk before anything is drawn (see verify()).
 
 THE SIX-OR-SEVEN QUESTION
     docs/module-design.md says "composed of six independent, composable modules"
-    (line 5) and then numbers SEVEN entries (1..7). docs/tender-deliverables-hours-
-    timeline.md says "6 modules". Those are not in conflict once you ask what a
-    module is:
+    (line 5) and then numbers SEVEN entries (1..7). The team's tender draft, held
+    outside this repository because it carries internal planning figures, says
+    "6 modules". Those are not in conflict once you ask what a module is:
 
         src/pipeline/ holds 8 files - index.ts (the orchestrator, not a module),
         types.ts, and six functional modules.

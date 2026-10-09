@@ -70,7 +70,9 @@ before drawing.
 
 **The six-or-seven question resolves cleanly.** `module-design.md` says the pipeline is
 "composed of six independent, composable modules" and then numbers *seven* entries;
-`tender-deliverables-hours-timeline.md` quotes six. `src/pipeline/` holds eight files.
+the team's tender draft (`tender-deliverables-hours-timeline.md`, a team document held
+outside this repository because it carries internal planning figures) quotes six.
+`src/pipeline/` holds eight files.
 `index.ts` is the orchestrator and `types.ts` is interfaces with no runtime code, so
 neither is a module, which leaves exactly six. The document's numbering counts the shared
 types as entry 1, and that numbering is the only inconsistent thing about it. The diagram
