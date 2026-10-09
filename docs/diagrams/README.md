@@ -15,9 +15,18 @@ python scripts/diagram_architecture.py
 python scripts/diagram_data_model.py
 ```
 
-Neither script needs the network or a model. Both verify their own inputs on every run
-and refuse to draw an unverified claim, so a stale source file fails loudly instead of
+Neither script needs the network or a model. Both check their inputs on every run and
+refuse to draw when a check fails, so a stale source file fails loudly rather than
 silently producing a wrong picture.
+
+Being exact about the reach of that, because "verifies its inputs" is easy to read as
+"verifies everything in the picture": the architecture script checks three things - that
+`module-design.md` numbers as many entries as it has headings, that every module file it
+names exists in `src/pipeline/`, and that the order it draws matches the document's own
+data-flow block. The data-model script executes every join it asserts against the real
+files. Figures quoted into the panels from elsewhere - the article counts, the model
+behind the endpoint - are attributed to their source rather than re-derived here, and
+should be read as quoted rather than as checked.
 
 Neither script needs the network or a model. Both verify their own inputs on every run
 and refuse to draw an unverified claim, so a stale source file fails loudly instead of
@@ -31,6 +40,14 @@ these four files, only the nineteen visualisation figures and the web assets; an
 tender draft describes the six modules in prose and contains no diagram. Nothing is
 being duplicated. If LLMEV-96's output exists somewhere outside this repository, it is
 not here, and this note is the record of that.
+
+One thing about LLMEV-96 is worth noting for whoever revisits this: it is a subtask of
+LLMEV-92, "Tender — Read & Review Tender Document", so it most likely reconstructed the
+architecture the *tender* describes as part of reviewing that document, whereas this
+diagram documents the pipeline as built from the code. The ticket states nothing at all,
+so treat that as an inference from its title and parentage, not as a fact. The practical
+point holds either way: it names no artefact, and no diagram of the built pipeline
+existed in this repository before these two.
 
 ## Why the SVG files are committed here
 
@@ -95,6 +112,14 @@ A second, smaller divergence is worth knowing: that document numbers `LLM Client
 before `Translator` (3), while its own data-flow block and orchestrator line translate
 the scenario *before* querying the four model slots. The diagram follows the execution
 order, because that is what the pipeline does.
+
+**One deliberate omission.** The retrieval panel names the stack - `LanceDB IVF_PQ,
+mlx-embeddings` - and not the embedding models. `wikipedia-semantic-search/README.md` is
+already stale on precisely that detail: it says `bge-m3`, while the indexer and service
+use per-language `bge-small-en-v1.5-bf16` and `bge-small-zh-v1.5-mlx`, and that document
+flags the mismatch against itself. A second copy of a drifting fact is how the first one
+went stale, so this panel states only the part that has not moved and leaves the model
+versions in the document that owns them.
 
 Modules are composable through the interfaces in `types.ts`, so each stage can be
 replaced without touching the others; the design doc names five extension points. The
