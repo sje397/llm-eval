@@ -248,8 +248,18 @@ Two limits worth stating rather than leaving to a reader. This is 16 responses o
 corpus's 1,200, so it bounds the judge's self-agreement at the sampled points and not
 corpus-wide; and it measures one judge on one machine. The cost is also real: the run took
 2h15m31s (8,131.7s) for 3,200 judge calls at six workers, about 24 calls a minute, so
-`--per-file 4` is not a quick job - a single-pass run over all 1,200 responses at
-`fact_limit=50` would be 120,000 calls on this same path.
+`--per-file 4` is not a quick job. A single-pass run over all 1,200 responses at
+`fact_limit=50` is 120,000 calls on this same path, about 83 hours of continuous running
+at the rate measured here.
+
+That scale is not hypothetical. The corpus has been judged on this path already, and
+the commits show its real shape: 10 responses per file on 2026-09-22, the two US files
+complete at 300 rows each on 2026-09-30, the two CN files at 299 rows each on 2026-10-05.
+It was staged over days rather than run in one sitting. The cause is the call granularity,
+not the corpus: `evaluate_response` loops per fact and calls the judge twice for each one
+(`judge_category` and `judge_factuality`), so 1,200 responses cost six figures in calls
+rather than 1,200. That is the concrete argument for the per-output batching path in
+`src/evaluation/engagement_rubric.py`, which builds one call per response.
 
 ### Verified against the plan
 
