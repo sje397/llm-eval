@@ -20,7 +20,7 @@ writing the same filenames as the committed set in `docs/visualisation/figures/`
 | `data/evaluation.cn.{en,zh}.csv` | 300 each | LLMEV-106 classifier, DeepSeek arm | complete (2026-10-05) |
 | `data/index.sqlite3` (`articles.facts_json`) | 60 topics, 7,883 facts | LLMEV-102/103, validated by LLMEV-111 | complete |
 | `data/*.json` (two LLMEV-111 validation reports) | figure 16 inputs | LLMEV-111 | complete |
-| `data/processed/rq1_*.csv` | per Romit's spec (§4) | LLMEV-107 | **not yet produced** |
+| `data/processed/rq1_*.csv` | per Romit's spec (§4) | LLMEV-107 (`scripts/rq1_export.py`) | complete |
 
 v1 raw corpus (max_tokens=1024) is retrievable at git commit `68ad1715` but must not be used for analysis.
 See `docs/corpus-provenance.md`.
