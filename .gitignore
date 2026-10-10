@@ -5,3 +5,19 @@ dist/
 demo/data/
 config/endpoints.yaml
 __pycache__/
+
+# Generated analysis output (reproducible from the figure scripts; see
+# docs/visualisation/README.md, "Not committed")
+data/analysis/
+
+# SVG companions the visualisation figure scripts write next to each PNG.
+# Only the PNGs are tracked. Scoped here so the hand-written diagrams in
+# docs/diagrams/ stay tracked.
+docs/visualisation/figures/*.svg
+
+# Tender section draft (deliverables, hours, timelines). An unreviewed draft, and this
+# repository is public, so it is held out rather than published. It stays present in the
+# working tree: scripts/diagram_architecture.py reads it to cross-check its module count,
+# and skips that one check - saying so - when it is absent, so a clean clone still works.
+# Nothing is deleted by this; remove the line to track the file again.
+docs/tender-deliverables-hours-timeline.md

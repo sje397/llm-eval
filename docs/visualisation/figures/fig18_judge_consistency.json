@@ -1,0 +1,127 @@
+{
+ "figure": "18 \u2014 judge consistency",
+ "source": "scripts/judge_consistency.py (data/analysis/judge_consistency.{json,csv})",
+ "judge_model": "Qwen3.8-Flash-Next-Uncensored-oQ4e-mtp",
+ "sampling": "no temperature, no seed sent (as committed in judge_pipeline.query_model)",
+ "fact_limit": 50,
+ "judged_responses": 16,
+ "refusal_shortcircuits": 0,
+ "engagement_call_flip_pct": 18.0,
+ "factuality_call_flip_pct": 3.625,
+ "responses_identical_pct": 18.8,
+ "unparseable_labels": 0,
+ "per_response": [
+  {
+   "label": "CN-08 framing_c cn-en",
+   "file": "cn.en",
+   "eng_pct": 100.0,
+   "fac_pct": 100.0,
+   "n": 50
+  },
+  {
+   "label": "CN-04 framing_a cn-zh",
+   "file": "cn.zh",
+   "eng_pct": 66.0,
+   "fac_pct": 100.0,
+   "n": 50
+  },
+  {
+   "label": "CN-04 framing_a cn-en",
+   "file": "cn.en",
+   "eng_pct": 74.0,
+   "fac_pct": 94.0,
+   "n": 50
+  },
+  {
+   "label": "CN-07 framing_d cn-en",
+   "file": "cn.en",
+   "eng_pct": 66.0,
+   "fac_pct": 92.0,
+   "n": 50
+  },
+  {
+   "label": "US-23 framing_b cn-en",
+   "file": "cn.en",
+   "eng_pct": 80.0,
+   "fac_pct": 96.0,
+   "n": 50
+  },
+  {
+   "label": "US-23 framing_b cn-zh",
+   "file": "cn.zh",
+   "eng_pct": 82.0,
+   "fac_pct": 96.0,
+   "n": 50
+  },
+  {
+   "label": "CN-08 framing_c cn-zh",
+   "file": "cn.zh",
+   "eng_pct": 100.0,
+   "fac_pct": 100.0,
+   "n": 50
+  },
+  {
+   "label": "CN-07 framing_d cn-zh",
+   "file": "cn.zh",
+   "eng_pct": 100.0,
+   "fac_pct": 100.0,
+   "n": 50
+  },
+  {
+   "label": "CN-04 framing_a us-en",
+   "file": "us.en",
+   "eng_pct": 92.0,
+   "fac_pct": 98.0,
+   "n": 50
+  },
+  {
+   "label": "CN-08 framing_c us-en",
+   "file": "us.en",
+   "eng_pct": 76.0,
+   "fac_pct": 96.0,
+   "n": 50
+  },
+  {
+   "label": "US-23 framing_b us-en",
+   "file": "us.en",
+   "eng_pct": 88.0,
+   "fac_pct": 98.0,
+   "n": 50
+  },
+  {
+   "label": "CN-07 framing_d us-en",
+   "file": "us.en",
+   "eng_pct": 70.0,
+   "fac_pct": 92.0,
+   "n": 50
+  },
+  {
+   "label": "US-23 framing_b us-zh",
+   "file": "us.zh",
+   "eng_pct": 76.0,
+   "fac_pct": 98.0,
+   "n": 50
+  },
+  {
+   "label": "CN-04 framing_a us-zh",
+   "file": "us.zh",
+   "eng_pct": 88.0,
+   "fac_pct": 92.0,
+   "n": 50
+  },
+  {
+   "label": "CN-08 framing_c us-zh",
+   "file": "us.zh",
+   "eng_pct": 70.0,
+   "fac_pct": 94.0,
+   "n": 50
+  },
+  {
+   "label": "CN-07 framing_d us-zh",
+   "file": "us.zh",
+   "eng_pct": 84.0,
+   "fac_pct": 96.0,
+   "n": 50
+  }
+ ]
+}

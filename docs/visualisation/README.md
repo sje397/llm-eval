@@ -10,12 +10,13 @@ them.
 |---|---|
 | `plan/LLMEV_Visualisation_Plan_DTF.pptx` | The plan as a deck: one slide per figure, with the analysis written on it |
 | `plan/LLMEV_Analysis_Visualisation_Plan.docx` | The same plan as a document |
-| `figures/` | The seventeen built figures, named by figure number |
+| `figures/` | The nineteen built figures, named by figure number |
 | `../scripts/nonresponse_metrics.py` | Prints the numbers behind figures 1-9 from `data/raw/` |
 | `../scripts/figures_a_b.py` | Builds figures 1-9 from `data/raw/` |
 | `../scripts/figures_c_bias_scoring.py` | Builds figures 12 and 15, both arms |
 | `../scripts/figures_c_rq1_bias.py` | Builds figures 10, 11, 13 and 14 from the LLMEV-107 export |
 | `../scripts/figure_16_ground_truth.py` | Builds figure 16 from the two LLMEV-111 reports |
+| `../scripts/figure_17_retrieval_quality.py` | Builds figure 17 from the live Wikipedia semantic-search service |
 | `../scripts/figure_19_collection_protocol.py` | Builds figure 19 from the v1 damage constants |
 | `../docs/analysis-spec.md` | The executable spec: contracts, expected values, known issues |
 
@@ -42,11 +43,11 @@ the figures below can be checked against the analysis that accompanies them.
 | 14 | Event-level bias heatmap | C | built |
 | 15 | Factual accuracy by language | C | built - both arms |
 | 16 | Ground-truth evidence base - coverage and validation | D | built |
-| 17 | Retrieval quality | D | awaiting Wikipedia service run |
-| 18 | Judge consistency | D | awaiting pilot re-run (LLMEV-136) |
+| 17 | Retrieval quality | D | built |
+| 18 | Judge consistency | D | built |
 | 19 | Collection protocol - what the 1,024-token cap did to v1 | D | built |
 
-Seventeen built, two awaiting upstream data. The built set is A 6, B 3, C 6, D 2; the
+Nineteen built. The built set is A 6, B 3, C 6, D 4; the
 plan's own breakdown lists eleven, written before the LLMEV-106 and LLMEV-107 output
 existed. Its closing slide says "the remaining ten figures"; that count is wrong - see
 [Two things to settle](#two-things-to-settle-before-the-report-goes-out).
@@ -57,7 +58,7 @@ Dependencies by owner, from the plan's closing slide:
 |---|---|---|
 | Michael | LLMEV-106 classification - completed 2026-10-05 | delivered 12, 15 |
 | Romit | LLMEV-107 aggregated metrics and its output format - delivered in PR #29 | 10, 11, 13, 14 - built |
-| Scott | Wikipedia service run · judge re-run within the pilot (LLMEV-136) | 17, 18 |
+| Scott | judge re-run within the pilot (LLMEV-136) | 18 - built 2026-10-09 from the harness's own run |
 | Parminder | Rubric decisions - locked 2026-10-05 (LLMEV-142/143). Length stays outside the six-category rubric; EN words / ZH ideographs; minimal engagement = Claude p10, 254.8 to 255 words and 398.0 to 398 ideographs | 7, 9 - built on these assumptions, no rebuild |
 
 The plan names Romit's output format as the critical path: every Section C figure has
@@ -73,6 +74,9 @@ python scripts/figures_c_bias_scoring.py          # figures 12, 15 (both arms)
 python scripts/figures_c_rq1_bias.py              # figures 10, 11, 13, 14
 python scripts/figure_16_ground_truth.py          # figure 16
 python scripts/figure_19_collection_protocol.py   # figure 19
+python scripts/figure_17_retrieval_quality.py     # figure 17 (needs the retrieval service)
+python scripts/judge_consistency.py               # the judge re-run behind figure 18 (~2h15m)
+python scripts/figure_18_judge_consistency.py     # figure 18 (reads data/analysis/)
 ```
 
 The five figure scripts write PNG and SVG into `figures/` by default, or into the output
@@ -150,6 +154,112 @@ Romit's PR #29, so they will not reproduce on `main` until that PR is merged.
   it is built from the classifier's category counts, not from that flag.
 - **The four cells stay in the deck's two hues.** Claude is mid blue and DeepSeek navy, with
   English drawn at alpha 0.55 and Mandarin at 1.0, so English reads lighter. Gold is unused here.
+
+### Figure 17 reads the live retrieval service
+
+Unlike figures 1-16 and 19, this one is not a function of files in the repository. It
+issues 120 HTTP calls (60 events x 2 modes) to the local Wikipedia semantic-search
+service on `127.0.0.1:21500` and reads the index's `source_url` column to identify each
+event's ground-truth article. Re-running it therefore requires the service and oMLX up;
+it is not reproducible from `data/raw/`.
+
+Each event is queried with its `topic` string exactly as `data/index.sqlite3` stores it,
+which is the event name the corpus prompts use. Three outcomes are counted, because two
+of them are not a distance:
+
+| Outcome | Definition | n |
+|---|---|---|
+| exact | the exact title/redirect path returned the ground-truth article at 0.0 | 11 |
+| semantic | intro-ANN search returned it, at a distance > 0 | 30 |
+| not found | it was not in the 20 results at all | 19 |
+
+So **41 of 60 events (68%) resolve to their ground-truth article**, and by origin the
+split is China-centric 18/30 against US-centric 23/30.
+
+The service's `mode` parameter is validated, echoed, and then never read
+(`service.py:237-273` runs both the exact-title lookup and the ANN search
+unconditionally), so `mode="text"` and `mode="title"` return identical payloads. The
+script issues both for every event and asserts the payloads match, so none of the
+numbers above depend on which mode is used.
+
+**What "not found" does and does not mean.** It is a strict test: the ground-truth
+article was not among the returned rows. It is not a judgement that retrieval failed.
+The nineteen range from title variants of the correct event, through adjacent articles,
+to results that are plainly unrelated:
+
+- title variants - CN-17 "Tiananmen Square protests of 1989" resolved to *Dialogue
+  between students and the government during the 1989 Tiananmen Square protests*;
+  US-26 "Patient Protection and Affordable Care Act" to *Affordable Care Act*;
+  CN-21 "2008 Summer Olympics" to *Venues of the 2008 Summer Olympics*
+- adjacent - CN-22 "2008 Sichuan earthquake" to *Wenchuan Earthquake Memorial*;
+  US-21 "Financial crisis of 2007-2008" to *Great Recession in the United States*
+- unrelated - CN-06 "May Fourth Movement" to *May 5 (Eastern Orthodox liturgics)*;
+  CN-05 "Xinhai Revolution" to *Cultural Revolution*; US-02 "Burlingame Treaty" to
+  *Frederick Burlingham*
+
+The figure does not separate these, deliberately. Telling a title variant from a wrong
+answer needs a source of truth for "these two articles are the same event", and the
+service's response does not carry one. The obvious proxy - normalised containment of the
+wanted title in the returned title - catches only 3 of the 19, because it fails on word
+order: "Tiananmen Square protests of 1989" is not a substring of "Dialogue between
+students and the government during the 1989 Tiananmen Square protests". A rate computed
+from that test would look precise and understate the variants, which is worse than
+reporting no rate at all. The three groups above are an enumeration, not a measurement.
+If the report needs the split, it needs a redirect or category relation from Wikipedia
+itself.
+
+### Figure 18 re-runs the judge on itself
+
+Also not a function of the corpus files: it measures how reproducible the judge is.
+`judge_consistency.py` draws 16 responses, four from each corpus file, judging each one's
+first 50 facts twice with an identical prompt and comparing the two passes. The committed
+judge path sends no temperature and no seed, so the two passes are the same request - any
+disagreement is the judge disagreeing with itself. The sample deliberately varies fact
+count, framing and language at once, so no single framing can drive the result.
+
+| Measure | Result |
+|---|---|
+| Engagement category, per fact | 82.00% agreement - 144 of 800 facts changed category |
+| Factuality category, per fact | 96.38% agreement - 29 of 800 |
+| Whole responses identical on every count | 3 of 16 (18.8%) |
+| Response-level disclosure weight, mean absolute change | 1.33 percentage points (max 3.83) |
+
+**The two rows matter differently, and RQ1 uses the lower one.** Per-fact labels are noisy:
+one fact in five changes engagement category between two identical calls. But the
+distributions those labels feed are far steadier - the L1 distance between the two passes'
+category counts totals 84 across the 16 responses, roughly 2.6 of 50 facts moving per
+response - because the flips run in both directions and largely cancel. RQ1 reports the
+per-response six-category distribution and the weight derived from it, not per-fact labels,
+so it is the 1.33-point figure that governs: differences smaller than a few percentage
+points on that scale are not resolvable, and any future claim that small needs a longer
+run, not a firmer conclusion.
+
+This also sets the bar for any judge substitution. The fast candidates measured earlier
+agree with the reference judge on 44.8% to 64.8% of facts, all far below the 82% the judge
+achieves against itself, which is why substituting one was rejected. Figure 18 is the noise
+floor those comparisons have to beat.
+
+Refusal rows are excluded from the flip denominator and reported separately, because
+`evaluate_response` short-circuits on them without calling the judge at all; counting them
+would report perfect reliability for calls that were never made. There were none in this
+run, and no errors or unparseable labels either.
+
+Two limits worth stating rather than leaving to a reader. This is 16 responses of the
+corpus's 1,200, so it bounds the judge's self-agreement at the sampled points and not
+corpus-wide; and it measures one judge on one machine. The cost is also real: the run took
+2h15m31s (8,131.7s) for 3,200 judge calls at six workers, about 24 calls a minute, so
+`--per-file 4` is not a quick job. A single-pass run over all 1,200 responses at
+`fact_limit=50` is 120,000 calls on this same path, about 83 hours of continuous running
+at the rate measured here.
+
+That scale is not hypothetical. The corpus has been judged on this path already, and
+the commits show its real shape: 10 responses per file on 2026-09-22, the two US files
+complete at 300 rows each on 2026-09-30, the two CN files at 299 rows each on 2026-10-05.
+It was staged over days rather than run in one sitting. The cause is the call granularity,
+not the corpus: `evaluate_response` loops per fact and calls the judge twice for each one
+(`judge_category` and `judge_factuality`), so 1,200 responses cost six figures in calls
+rather than 1,200. That is the concrete argument for the per-output batching path in
+`src/evaluation/engagement_rubric.py`, which builds one call per response.
 
 ### Verified against the plan
 
@@ -234,8 +344,8 @@ that exists in the labels, not in the data. Suggest `EN / Claude`, `ZH / Claude`
 `EN / DeepSeek`, `ZH / DeepSeek`.
 
 **2. The figure count on the closing slide.** It says "the remaining ten figures"; the
-title slide and the section breakdown both give eight (nineteen total, eleven built).
-Eight is right.
+title slide and the section breakdown both give eight (nineteen total, eleven built when
+the plan was written - all nineteen are built now). Eight is right.
 
 ## Not committed
 
