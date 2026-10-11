@@ -87,6 +87,26 @@ The `demo/data/` directory is volume-mounted to persist the demo's job state acr
 
 ## Testing
 
+Two suites, and both run from the repository root.
+
+**Python, the evaluation logic.** Nine modules under `tests/` cover the engagement
+rubric, score mapping, score aggregation, non-response metrics, the oMLX auth path,
+and the judge pipeline with its consistency harness. Dependencies, pytest included,
+come from `scripts/requirements.txt`.
+
+```bash
+pip install -r scripts/requirements.txt
+pytest -q
+```
+
+Each module puts the repository root, and `scripts/`, on `sys.path` itself, so there
+is no packaging step and no `pytest.ini`. Run the whole directory rather than a single
+file: collecting from the root is what catches a test module that has drifted out of
+the suite. The repository's own virtualenv is `.venv-llm`, so `.venv-llm/bin/pytest -q`
+is the same command.
+
+**End-to-end, the web and API surface.**
+
 ```bash
 npm test
 ```
