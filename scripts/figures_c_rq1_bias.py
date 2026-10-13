@@ -105,13 +105,36 @@ if os.path.exists(SCEN):
 
 # Cell means from both files. Figures 10 and 13 read the aggregated file, so this
 # cross-check is what stops a mis-shaped aggregate from being plotted silently.
+#
+# It can only ask for the precision the files are stored at. rq1_export.py rounds every
+# score it writes to `score_decimals` places, and an aggregated cell is that cell's mean
+# of those already-rounded scores rounded again, so the largest honest disagreement is
+# half a unit in the last stored decimal - one whole unit, to leave the ties room.
+# Comparing at 1e-9 instead demanded a precision neither file has: on the committed
+# export the four cells differ by 5.3e-08 to 2.3e-07, and this script exited before
+# drawing anything. The guard keeps its power at the looser bound, because a mis-shaped
+# aggregate is wrong by far more than a rounding - taking the US-centric rows in place
+# of All moves these cell means by 1.5e-02 to 7.7e-02, four orders above the tolerance.
+MANIFEST = os.path.join(PROC, "rq1_export_manifest.json")
+declared = None
+if os.path.exists(MANIFEST):
+    with open(MANIFEST, encoding="utf-8") as fh:
+        declared = json.load(fh).get("score_decimals")
+if declared is None:
+    SCORE_DECIMALS = 6
+    print(f"  note: {MANIFEST} declares no score_decimals, assuming {SCORE_DECIMALS}")
+else:
+    SCORE_DECIMALS = int(declared)
+DECIMAL_TOLERANCE = 10.0 ** -SCORE_DECIMALS
+
 mean_from_rs = rs.groupby(["model", "language"])[MEASURE].mean()
 mean_from_ag = {}
 for (m, l) in CELLS:
     d = agg_all[(agg_all["model"] == m) & (agg_all["language"] == l)]
     mean_from_ag[(m, l)] = float(np.average(d["mean_disclosure_score"], weights=d["sample_size"]))
-    if abs(mean_from_ag[(m, l)] - mean_from_rs[(m, l)]) > 1e-9:
-        sys.exit(f"aggregated and response files disagree for {m}/{l}")
+    if abs(mean_from_ag[(m, l)] - mean_from_rs[(m, l)]) > DECIMAL_TOLERANCE:
+        sys.exit(f"aggregated and response files disagree for {m}/{l} by more than one "
+                 f"unit in the last stored decimal ({DECIMAL_TOLERANCE:g})")
 
 print("bias score (disclosure), cell means:")
 for (m, l) in CELLS:
