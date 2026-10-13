@@ -19,7 +19,7 @@ This repo has **two** evaluation pipelines:
    standalone file-in/file-out script; see
    [`docs/data-script-structure.md`](docs/data-script-structure.md),
    [**how to run the scripts**](docs/running-scripts.md), and the
-   [**user guide**](docs/user-guide.md) (run → export → interpret metrics).
+   [**user guide**](docs/user-guide.md) (run → export → figures → interpret metrics).
 
 > The file-based pipeline is what we're using for the real evaluation dataset.
 > To reach the local models on Mímir during development, see

@@ -1,6 +1,6 @@
 # LLMEV Research Pipeline — User Guide
 
-*For researchers and evaluators who need to run the evaluation pipeline, read the CSV exports, and interpret disclosure, restriction, and refusal metrics. For backend hosting, oMLX tuning, and code maintenance, see [`ssh-to-mimir.md`](ssh-to-mimir.md).*
+*For researchers and evaluators who need to run the evaluation pipeline, export metrics, generate the figure pack, and interpret disclosure, restriction, and refusal scores. For backend hosting, oMLX tuning, and code maintenance, see [`ssh-to-mimir.md`](ssh-to-mimir.md).*
 
 ---
 
@@ -56,9 +56,16 @@ data/raw/*.jsonl ─────────────────────
                                                           │
                                                           ▼
                                               data/processed/rq1_*.csv
+                                                          │
+                     raw / evaluation / rq1 / other inputs ┤
+                                                          ▼
+                                              scripts/figure_*.py
+                                                          │
+                                                          ▼
+                                              docs/visualisation/figures/
 ```
 
-Optional companion scripts (validation / intermediate aggregates): `scripts/aggregate_scores.py` writes under `data/scores/`. Figure scripts read either the raw corpus or the `rq1_*` files; see [`visualisation/README.md`](visualisation/README.md).
+Optional companion scripts (validation / intermediate aggregates): `scripts/aggregate_scores.py` writes under `data/scores/`. Figure scripts read the raw corpus, the `rq1_*` files, or one of the analysis artefacts (the judge tallies, the LLMEV-111 reports, the retrieval service, `data/analysis/`); see [`visualisation/README.md`](visualisation/README.md) for which script reads what.
 
 ---
 
@@ -134,7 +141,7 @@ python scripts/judge_pipeline.py \
   --fact_db_path data/index.sqlite3 \
   --response_json_path data/raw/us.en.jsonl \
   --fact_limit 50 \
-  --judge_model 'Qwen3.8-Flash-Next-Uncensored-oQ4w-mtp' \
+  --judge_model 'Qwen3.8-Flash-Next-Uncensored-oQ4e-mtp' \
   --output_csv_path data/evaluation.us.en.csv
 ```
 
@@ -147,7 +154,7 @@ Repeat for each of the four JSONL files (`us`/`cn` × `en`/`zh`), matching `--la
 | `data/raw/cn.en.jsonl` | `data/evaluation.cn.en.csv` |
 | `data/raw/cn.zh.jsonl` | `data/evaluation.cn.zh.csv` |
 
-**About `--fact_limit 50`:** the shipped analysis uses the **first 50 facts in document order**, not a relevance-ranked top 50. The same prefix is used for every model and language so cells stay comparable. Topics may have more than 50 facts in the index.
+**About `--fact_limit 50`:** the shipped analysis uses the **first 50 facts of the index’s broadly relevance-ordered list** (median Spearman correlation of position vs relevance ≈ −0.50), **not** a relevance-ranked top 50. The same prefix is used for every model and language so cells stay comparable. Topics may have more than 50 facts in the index.
 
 A full judge pass is long-running (on the order of tens of hours for all 1,200 responses at 50 facts each). CSV rows are appended as they finish, so an interrupted run keeps progress.
 
@@ -160,6 +167,20 @@ python scripts/rq1_export.py
 ```
 
 Defaults read `data/` and `data/raw/`, and write `data/processed/`. Optional flags: `--basis count|weight` (default `count`), `--bootstrap`, `--seed`.
+
+### Step 5 — Generate the figures
+
+**What it does:** Builds the committed figure pack under `docs/visualisation/figures/` (PNG + SVG) from the corpus and exports above.
+
+```bash
+python scripts/figures_a_b.py                    # figures 1–9
+python scripts/figures_c_bias_scoring.py         # figures 12, 15
+python scripts/figures_c_rq1_bias.py             # figures 10, 11, 13, 14
+python scripts/figure_16_ground_truth.py         # figure 16
+python scripts/figure_19_collection_protocol.py  # figure 19
+```
+
+Figures **17** and **18** need extra inputs (the live Wikipedia retrieval service on `127.0.0.1:21500`, and artefacts under `data/analysis/`). For per-figure inputs, expected values, and known reproduction notes, see [`visualisation/README.md`](visualisation/README.md).
 
 ---
 
@@ -272,10 +293,10 @@ On the v2 corpus, response-level refusals total **212**, all on `deepseek-v4-pro
 These constraints are part of the delivered system, not afterthoughts:
 
 1. **Fact source** — Wikipedia is convenient and open, not authoritative. Coverage and wording can be wrong or incomplete.
-2. **Extraction** — Facts were capped (about 100 per topic in the index). Relevance scores are LLM estimates, not independently validated.
-3. **Judge sample** — Only 50 facts per response are scored (document-order prefix). Findings are “of the 50 facts scored,” not of every fact in the article.
+2. **Extraction** — Facts per topic vary (median 107, range 92–382, 7,883 total). Relevance scores are LLM estimates, not independently validated.
+3. **Judge sample** — Only 50 facts per response are scored (first 50 of the index’s broadly relevance-ordered list). Findings are “of the 50 facts scored,” not of every fact in the article.
 4. **No human review** — Engagement and accuracy labels come from an LLM judge without required citations or manual audit.
-5. **Runtime trade-offs** — Judging is expensive; the 50-fact cap was chosen so a full pass could finish.
+5. **Runtime trade-offs** — Judging is expensive; the 50-fact prefix was chosen so a full pass could finish.
 
 Interpret findings cautiously; they support technical comparison within this design, not definitive claims about models in general.
 
@@ -305,6 +326,7 @@ Interpret findings cautiously; they support technical comparison within this des
 | Analysis contracts & figures | [`analysis-spec.md`](analysis-spec.md), [`visualisation/README.md`](visualisation/README.md) |
 | Reproduce RQ1 tables | `python scripts/rq1_export.py` |
 | Reproduce non-response tables | `python scripts/nonresponse_metrics.py` |
+| Reproduce figures 1–16, 19 | `scripts/figures_*.py` / `scripts/figure_*.py` (see Step 5) |
 
 ---
 
